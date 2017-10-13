@@ -7,11 +7,12 @@ public class Login {
     private JButton Button_log;
     private JButton Button_reg;
     private JPanel panel1;
-    private JTextField textField_id;
+    private JTextField textField_userName;
     private JButton Button_key;
     private JPasswordField passwordField1;
 
     private Client client;
+    public String userName;
 
     public Login(Client tClient) {
         frame = new JFrame("IM");
@@ -23,19 +24,19 @@ public class Login {
 
         Button_log.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                String id=textField_id.getText();
+                userName= textField_userName.getText();
                 String key=new String(passwordField1.getPassword());
-                if(id.isEmpty()||key.isEmpty())
+                if(userName.isEmpty()||key.isEmpty())
                     showMessage("请输入用户名密码！");
                 else {
                     client.send("LOGIN");
-                    client.send(id + " " + key);
+                    client.send(userName + " " + key + " " + String.valueOf(client.listenPort));
                 }
             }
         });
         Button_reg.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                String id=textField_id.getText();
+                String id= textField_userName.getText();
                 String key=new String(passwordField1.getPassword());
                 if(id.isEmpty()||key.isEmpty())
                     showMessage("请输入用户名密码！");
@@ -47,7 +48,7 @@ public class Login {
         });
         Button_key.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                String id=textField_id.getText();
+                String id= textField_userName.getText();
                 if(id.isEmpty())
                     showMessage("请输入用户名！");
                 else {

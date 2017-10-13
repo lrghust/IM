@@ -1,40 +1,71 @@
-import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
 
-public class Dialog {
-    private JTextArea textArea1;
-    private JPanel panel1;
-    private JTextField textField1;
-    private JButton Button;
+public class Dialog extends Thread{
     private Client client;
+    private Socket localSoc;
+    private IM uiIm;
+    public int dialogId;
+    private PrintWriter writer;
+    private BufferedReader reader;
+    private String remoteUserName;
 
-    public Dialog(Client tClient) {
-        JFrame frame = new JFrame("Dialog");
-        frame.setContentPane(this.panel1);
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frame.pack();
-        frame.setVisible(true);
+    public Dialog(Client tClient, IM im) throws IOException{
         client=tClient;
-        Button.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                String strC2S=textField1.getText();
-                client.send("TEXT:"+strC2S);
-                showText("Me:"+strC2S+"\n");
-            }
-        });
-        frame.addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent e) {
-                super.windowClosing(e);
-                client.close();
-            }
-        });
+        uiIm=im;
+        localSoc=client.localSoc;
+        writer = new PrintWriter(localSoc.getOutputStream());
+        reader = new BufferedReader(new InputStreamReader(localSoc.getInputStream()));
+        writer.println("USERNAME:"+client.localUserName);
+        writer.flush();
     }
 
-    public void showText(String str){
-        textArea1.append(str);
-        textArea1.setCaretPosition(textArea1.getText().length());
+    public void run(){
+        while(true){
+            try {
+                String inStr;
+                inStr = reader.readLine();
+                if(inStr==null) {
+                    localSoc.close();
+                    break;
+                }
+                String []group=inStr.split(":");
+                String mark=group[0];
+                String context=inStr.substring(mark.length()+1,inStr.length());
+                switch (mark){
+                    case "USERNAME":{
+                        remoteUserName=context;
+                        uiIm.showText("与"+remoteUserName+"建立连接！\n");
+                        dialogId=uiIm.addDialog(remoteUserName,this);
+                        break;
+                    }
+                    case "TEXT":{
+                        uiIm.showText(remoteUserName+":"+context+"\n",dialogId);
+                        break;
+                    }
+                    default:break;
+                }
+            }catch(IOException e){
+                System.out.println(e.getMessage());
+                break;
+            }
+        }
+    }
+
+    public void send(String str){
+        writer.println(str);
+        writer.flush();
+    }
+
+    public void close(){
+        try {
+            localSoc.close();
+            uiIm.showText("与"+ remoteUserName +"连接结束！\n");
+        }catch(IOException e) {
+            e.printStackTrace();
+        }
     }
 }
