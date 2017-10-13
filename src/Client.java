@@ -12,7 +12,7 @@ public class Client extends Thread {
 
     private String serverIp="localhost";
     private int serverPort=10000;
-    public int listenPort=8890;
+    public int listenPort=8889;
     public String localUserName;
 
 

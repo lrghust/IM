@@ -36,6 +36,9 @@ public class Server extends Thread {
             try {
                 String inStr,outStr;
                 inStr=reader.readLine();
+                if(inStr==null){
+                    break;
+                }
                 switch (state) {
                     case wait: {
                         switch (inStr) {
@@ -53,7 +56,7 @@ public class Server extends Thread {
                                 break;
                             case "CLOSE":{
                                 deleteUser(userName);
-                                break;
+                                return;
                             }
                             default:
                                 break;
