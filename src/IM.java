@@ -38,7 +38,7 @@ public class IM extends Thread{
         button_connect.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 String strId=textField_id.getText();
-                if(!client.connect(strId)) JOptionPane.showMessageDialog(frame, "连接失败！");
+                if(!client.connect(strId)) showMessage("用户不存在！");
             }
         });
 
@@ -94,6 +94,10 @@ public class IM extends Thread{
         JTextArea textarea=textAreaList.get(tabid);
         textarea.append(str);
         textarea.setCaretPosition(textarea.getText().length());
+    }
+
+    public void showMessage(String str){
+        JOptionPane.showMessageDialog(frame, str);
     }
 
 }

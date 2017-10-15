@@ -12,7 +12,7 @@ public class Client extends Thread {
 
     private String serverIp="localhost";
     private int serverPort=10000;
-    public int listenPort=8889;
+    public int listenPort=8888;
     public String localUserName;
 
 
@@ -29,6 +29,7 @@ public class Client extends Thread {
             listenSoc = new ServerSocket(listenPort);
             uiIm = new IM(this);
             uiIm.showText("Welcome, "+ localUserName +"!\n");
+            receiveOfflineText();
             while (true) {
                 localSoc = listenSoc.accept();
                 Thread tDialog = new Dialog(this, uiIm);
@@ -96,19 +97,49 @@ public class Client extends Thread {
         }
     }
 
+    public void receiveOfflineText(){
+        while(true){
+            try{
+                String inStr=serverSocReader.readLine();
+                String[] group=inStr.split(":");
+                String mark=group[0];
+                String context=inStr.substring(mark.length()+1,inStr.length());
+                switch (mark){
+                    case "OFFLINETEXT":{
+                        uiIm.showText("离线消息："+context+"\n");
+                        break;
+                    }
+                    case "OFFLINEEND":return;
+                    default:break;
+                }
+            }catch(IOException e){
+                e.printStackTrace();
+            }
+        }
+    }
+
     public boolean connect(String id){
         try {
-            serverSocWriter.println("QUERYADDR");
-            serverSocWriter.flush();
-            serverSocWriter.println(id);
-            serverSocWriter.flush();
-            String addr=serverSocReader.readLine();
-            if(addr.equals("QUERYADDR:errorid")) return false;
-            String[] ip_port=addr.split(" ");
-            localSoc = new Socket(ip_port[0],Integer.parseInt(ip_port[1]));
-            Thread tDialog=new Dialog(this,uiIm);
-            tDialog.start();
-            return true;
+            send("QUERYADDR");
+            send(id);
+            String info=serverSocReader.readLine();
+            String[] group=info.split(":");
+            String addr=group[1];
+            String[] ip_port=new String[2];
+            if(addr.equals("errorid")) return false;
+            else if(addr.equals("OFFLINE")) {
+                localSoc = new Socket(serverIp,serverPort);
+                Thread tDialog=new Dialog(this,uiIm,id);
+                tDialog.start();
+                return true;
+            }
+            else {
+                ip_port=addr.split(" ");
+                localSoc = new Socket(ip_port[0],Integer.parseInt(ip_port[1]));
+                Thread tDialog=new Dialog(this,uiIm);
+                tDialog.start();
+                return true;
+            }
         }catch(IOException e) {
             e.printStackTrace();
             return false;

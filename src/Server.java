@@ -8,8 +8,10 @@ public class Server extends Thread {
     private BufferedReader reader;
     private PrintWriter writer;
     private String userName;
+    private String offlinefrom;
+    private String offlineto;
 
-    private enum State{wait, login, signup, findkey, queryaddr};
+    private enum State{wait, login, signup, findkey, queryaddr, offline, text};
 
     private ArrayList<User> Users;
 
@@ -58,6 +60,9 @@ public class Server extends Thread {
                                 deleteUser(userName);
                                 return;
                             }
+                            case "OFFLINE":{
+                                state=State.offline;
+                            }
                             default:
                                 break;
                         }
@@ -71,6 +76,11 @@ public class Server extends Thread {
                             String ip=serverSoc.getInetAddress().getHostAddress();
                             if(!saveLoginUser(pair[0],ip,Integer.parseInt(pair[2]))) outStr = "LOGIN:erroralready";
                             userName=pair[0];
+                            writer.println(outStr);
+                            writer.flush();
+                            sendOfflineText(userName);
+                            state=State.wait;
+                            break;
                         }
                         else if (check == 1) outStr = "LOGIN:errorkey";
                         else outStr = "LOGIN:errorid";
@@ -100,11 +110,26 @@ public class Server extends Thread {
                     }
                     case queryaddr:{
                         String addr=queryAddr(inStr);
-                        if(addr==null) outStr = "QUERYADDR:errorid";
-                        else outStr = addr;
+                        if(addr=="UNEXIST") outStr = "QUERYADDR:errorid";
+                        else outStr = "QUERYADDR:"+addr;
                         writer.println(outStr);
                         writer.flush();
                         state=State.wait;
+                        break;
+                    }
+                    case offline:{
+                        String[] names=inStr.split(" ");
+                        offlinefrom=names[0];
+                        offlineto=names[1];
+                        outStr="OFFLINE:ok";
+                        writer.println(outStr);
+                        writer.flush();
+                        state=State.text;
+                        break;
+                    }
+                    case text:{
+                        String mark=inStr.split(":")[0];
+                        saveOfflineText(inStr.substring(mark.length()+1,inStr.length()));
                         break;
                     }
                     default:
@@ -174,11 +199,44 @@ public class Server extends Thread {
     }
 
     private String queryAddr(String id) throws IOException{
-        for(int i=0;i<Users.size();i++){
-            User user=Users.get(i);
-            if(user.id.equals(id)) return user.ip+" "+String.valueOf(user.port);
+        BufferedReader usersReader=new BufferedReader(new FileReader("/Users/lrg/users.txt"));
+        String line;
+        while((line=usersReader.readLine())!=null) {
+            String[] pair = line.split(" ");
+            if(id.equals(pair[0])) {
+                for(int i=0;i<Users.size();i++){
+                    User user=Users.get(i);
+                    if(user.id.equals(id)) return user.ip+" "+String.valueOf(user.port);
+                }
+                return "OFFLINE";
+            }
         }
-        return null;
+        return "UNEXIST";
+    }
+
+    private void saveOfflineText(String str) throws IOException{
+        BufferedWriter usersWriter = new BufferedWriter(new FileWriter("/Users/lrg/"+offlineto+".txt",true));
+        usersWriter.write(offlinefrom+":"+str+"\n");
+        usersWriter.close();
+    }
+
+    private void sendOfflineText(String id) throws IOException{
+        String filepath="/Users/lrg/"+id+".txt";
+        File file=new File(filepath);
+        if(file.exists()){
+            BufferedReader usersReader=new BufferedReader(new FileReader(filepath));
+            String line;
+            while((line=usersReader.readLine())!=null) {
+                writer.println("OFFLINETEXT:"+line);
+                writer.flush();
+            }
+            FileWriter fw=new FileWriter(file);
+            fw.write("");
+            fw.flush();
+            fw.close();
+        }
+        writer.println("OFFLINEEND:end");
+        writer.flush();
     }
 
     public static void main(String []args) throws IOException{

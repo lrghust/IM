@@ -12,6 +12,7 @@ public class Dialog extends Thread{
     private PrintWriter writer;
     private BufferedReader reader;
     private String remoteUserName;
+    private boolean isOffline;
 
     public Dialog(Client tClient, IM im) throws IOException{
         client=tClient;
@@ -21,6 +22,19 @@ public class Dialog extends Thread{
         reader = new BufferedReader(new InputStreamReader(localSoc.getInputStream()));
         writer.println("USERNAME:"+client.localUserName);
         writer.flush();
+        isOffline=false;
+    }
+
+    public Dialog(Client tClient, IM im, String id) throws IOException{
+        remoteUserName=id;
+        client=tClient;
+        uiIm=im;
+        localSoc=client.localSoc;
+        writer = new PrintWriter(localSoc.getOutputStream());
+        reader = new BufferedReader(new InputStreamReader(localSoc.getInputStream()));
+        send("OFFLINE");
+        send(client.localUserName+" "+remoteUserName);
+        isOffline=true;
     }
 
     public void run(){
@@ -39,6 +53,11 @@ public class Dialog extends Thread{
                     case "USERNAME":{
                         remoteUserName=context;
                         uiIm.showText("与"+remoteUserName+"建立连接！\n");
+                        dialogId=uiIm.addDialog(remoteUserName,this);
+                        break;
+                    }
+                    case "OFFLINE":{
+                        uiIm.showText("向"+remoteUserName+"发送离线消息\n");
                         dialogId=uiIm.addDialog(remoteUserName,this);
                         break;
                     }
@@ -63,7 +82,8 @@ public class Dialog extends Thread{
     public void close(){
         try {
             localSoc.close();
-            uiIm.showText("与"+ remoteUserName +"连接结束！\n");
+            if(isOffline) uiIm.showText("向"+ remoteUserName +"发送离线消息结束！\n");
+            else uiIm.showText("与"+ remoteUserName +"连接结束！\n");
         }catch(IOException e) {
             e.printStackTrace();
         }
