@@ -12,7 +12,9 @@ public class Dialog extends Thread{
     private PrintWriter writer;
     private BufferedReader reader;
     private String remoteUserName;
-    private boolean isOffline;
+    public boolean isOffline;
+    private static int fileRecvPort=10000;
+    public String sendFilePath;
 
     public Dialog(Client tClient, IM im) throws IOException{
         client=tClient;
@@ -63,6 +65,22 @@ public class Dialog extends Thread{
                     }
                     case "TEXT":{
                         uiIm.showText(remoteUserName+":"+context+"\n",dialogId);
+                        break;
+                    }
+                    case "FILE":{
+                        String []fileGroup=context.split(" ");
+                        if(fileGroup[0].equals("FILENAME")){
+                            uiIm.showText("接收文件"+fileGroup[1]+"\n",dialogId);
+                            send("FILE:PORT "+String.valueOf(fileRecvPort));
+                            Thread tFileTrans=new FileTrans(fileRecvPort++);
+                            tFileTrans.start();
+                        }
+                        else if(fileGroup[0].equals("PORT")){
+                            String ip=localSoc.getInetAddress().getHostAddress();
+                            int port=Integer.parseInt(fileGroup[1]);
+                            Thread tFileTrans=new FileTrans(ip,port,sendFilePath);
+                            tFileTrans.start();
+                        }
                         break;
                     }
                     default:break;

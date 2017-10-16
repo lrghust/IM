@@ -1,5 +1,4 @@
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -17,6 +16,9 @@ public class IM extends Thread{
     private JTextField textField1;
     private JButton button_send;
     private JButton button_close;
+    private JTextField textField_filepath;
+    private JButton button_choosefile;
+    private JButton button_sendfile;
 
     private Client client;
     private ArrayList<Dialog> dialogList;
@@ -70,6 +72,34 @@ public class IM extends Thread{
                 super.windowClosing(e);
                 client.serverSocWriter.println("CLOSE");
                 client.serverSocWriter.flush();
+            }
+        });
+
+        button_choosefile.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser jfc=new JFileChooser();
+                jfc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES );
+                jfc.showDialog(new JLabel(), "选择");
+                String filePath=jfc.getSelectedFile().getPath();
+                textField_filepath.setText(filePath);
+            }
+        });
+        button_sendfile.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                int curTabId=tabbedPane1.getSelectedIndex();
+                if(dialogList.get(curTabId).isOffline) {
+                    showMessage("当前对方用户不在线！");
+                    return;
+                }
+                String filePath=textField_filepath.getText();
+                if(filePath.isEmpty()){
+                    showMessage("请选择要发送的文件！");
+                    return;
+                }
+                dialogList.get(curTabId).sendFilePath=filePath;
+                String[] splitPath=filePath.split("/");
+                String sendFileName=splitPath[splitPath.length-1];
+                dialogList.get(curTabId).send("FILE:FILENAME "+sendFileName);
             }
         });
     }

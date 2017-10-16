@@ -11,7 +11,7 @@ public class Client extends Thread {
     private Login uiLogin;
 
     private String serverIp="localhost";
-    private int serverPort=10000;
+    private int serverPort=9000;
     public int listenPort=8888;
     public String localUserName;
 
