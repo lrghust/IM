@@ -49,25 +49,25 @@ public class FileTrans extends Thread {
 
     private boolean send(String ip, int port, String path){
         try {
-            Socket socket = new Socket(ip, port);
+            RDT rdt = new RDT(ip, port);
+            if(!rdt.isConnected()) return false;
             File file=new File(path);
             long MByte=file.length()/(1024);
-            BufferedWriter writer=new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            BufferedWriter writer=new BufferedWriter(new OutputStreamWriter(rdt.getOutputStream()));
             writer.write(String.valueOf(MByte)+"\n");
             writer.flush();
             FileInputStream fileIn=new FileInputStream(path);
             byte[] sendPacket=new byte[1024];
             int num=0;
             while((fileIn.read(sendPacket))!=-1){
-                DataOutputStream out=new DataOutputStream(socket.getOutputStream());
+                DataOutputStream out=new DataOutputStream(rdt.getOutputStream());
                 out.write(sendPacket);
                 out.flush();
                 num++;
                 fileSender.progressBar1.setValue((int)((double)num/MByte*100));
             }
         }catch (IOException e){
-            if(!e.getMessage().equals("Connection refused (Connection refused)"))
-                e.printStackTrace();
+            e.printStackTrace();
             return false;
         }
         return true;
@@ -75,15 +75,15 @@ public class FileTrans extends Thread {
 
     private void receive(int port, String path){
         try{
-            ServerSocket serverSoc=new ServerSocket(port);
-            Socket socket=serverSoc.accept();
+            ServerRDT serverRdt=new ServerRDT(port);
+            RDT rdt=serverRdt.accept();
             long MByte;
-            BufferedReader reader=new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            BufferedReader reader=new BufferedReader(new InputStreamReader(rdt.getInputStream()));
             String tmp=reader.readLine();
             MByte=Long.parseLong(tmp);
             int num=0;
             byte[] recvPacket=new byte[1024];
-            DataInputStream in=new DataInputStream(socket.getInputStream());
+            DataInputStream in=new DataInputStream(rdt.getInputStream());
             FileOutputStream out=new FileOutputStream(path);
             while((in.read(recvPacket))!=-1){
                 num++;
