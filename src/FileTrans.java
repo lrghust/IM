@@ -1,6 +1,7 @@
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Arrays;
 
 public class FileTrans extends Thread {
     private String sendIp;
@@ -53,16 +54,18 @@ public class FileTrans extends Thread {
             if(!rdt.isConnected()) return false;
             File file=new File(path);
             long MByte=file.length()/(1024);
-            BufferedWriter writer=new BufferedWriter(new OutputStreamWriter(rdt.getOutputStream()));
-            writer.write(String.valueOf(MByte)+"\n");
-            writer.flush();
+            //BufferedWriter writer=new BufferedWriter(new OutputStreamWriter(rdt.getOutputStream()));
+            //writer.write(String.valueOf(MByte)+"\n");
+            //writer.flush();
+            rdt.writeLine(String.valueOf(MByte)+"\n");
             FileInputStream fileIn=new FileInputStream(path);
             byte[] sendPacket=new byte[1024];
             int num=0;
-            while((fileIn.read(sendPacket))!=-1){
-                DataOutputStream out=new DataOutputStream(rdt.getOutputStream());
-                out.write(sendPacket);
-                out.flush();
+            int len=-1;
+            while((len=fileIn.read(sendPacket))!=-1){
+                //DataOutputStream out=new DataOutputStream(rdt.getOutputStream());
+                rdt.write(Arrays.copyOfRange(sendPacket,0,len));
+                //out.flush();
                 num++;
                 fileSender.progressBar1.setValue((int)((double)num/MByte*100));
             }
@@ -78,16 +81,17 @@ public class FileTrans extends Thread {
             ServerRDT serverRdt=new ServerRDT(port);
             RDT rdt=serverRdt.accept();
             long MByte;
-            BufferedReader reader=new BufferedReader(new InputStreamReader(rdt.getInputStream()));
-            String tmp=reader.readLine();
+            //BufferedReader reader=new BufferedReader(new InputStreamReader(rdt.getInputStream()));
+            String tmp=rdt.readLine();
             MByte=Long.parseLong(tmp);
             int num=0;
             byte[] recvPacket=new byte[1024];
-            DataInputStream in=new DataInputStream(rdt.getInputStream());
+            //DataInputStream in=new DataInputStream(rdt.getInputStream());
             FileOutputStream out=new FileOutputStream(path);
-            while((in.read(recvPacket))!=-1){
+            int len=-1;
+            while((len=rdt.read(recvPacket))!=-1){
                 num++;
-                out.write(recvPacket);
+                out.write(Arrays.copyOfRange(recvPacket,0,len));
                 fileReceiver.progressBar1.setValue((int)((double)num/MByte*100));
             }
             out.close();
