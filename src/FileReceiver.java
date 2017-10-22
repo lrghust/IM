@@ -44,7 +44,7 @@ public class FileReceiver {
                     return;
                 }
                 fileTrans.recvPath=textField_filepath.getText()+"/"+textField_filename.getText();
-                fileTrans.recvFlag=true;
+                fileTrans.receive();
             }
         });
         progressBar1.addChangeListener(new ChangeListener() {

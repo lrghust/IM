@@ -1,57 +1,38 @@
 import java.io.*;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.util.Arrays;
 
-public class FileTrans extends Thread {
+public class FileTrans {
     private String sendIp;
     private int sendPort;
     private String sendPath;
-    public boolean sendFlag;
     private FileSender fileSender;
 
     private int recvPort;
     private FileReceiver fileReceiver;
-    public boolean recvFlag;
     public String recvPath;
+    private RDT recvRDT;
     public FileTrans(String ip, int port, String tSendPath) {
         sendIp=ip;
         sendPort=port;
         sendPath=tSendPath;
         fileSender=new FileSender(this);
-        sendFlag=true;
-        recvFlag=false;
-    };//send
+    }//send
 
     public FileTrans(int port){
         recvPort=port;
         fileReceiver=new FileReceiver(this);
-        recvFlag=false;
-        sendFlag=false;
-    };//receive
+    }//receive
 
-    public void run(){
-        while (true){
-            try {
-                sleep(500);
-            }catch (InterruptedException e){
-                e.printStackTrace();
-            }
-            if(sendFlag){
-                if(send(sendIp,sendPort,sendPath))
-                    break;
-            }
-            if(recvFlag){
-                receive(recvPort,recvPath);
-                break;
-            }
-        }
-    }
-
-    private boolean send(String ip, int port, String path){
+    public boolean send(){
+        String ip=sendIp;
+        int port=sendPort;
+        String path=sendPath;
         try {
-            RDT rdt = new RDT(ip, port);
-            if(!rdt.isConnected()) return false;
+            RDT rdt;
+            while(true) {
+                rdt = new RDT(ip, port);
+                if (rdt.isConnected()) break;
+            }
             File file=new File(path);
             long MByte=file.length()/(1024);
             //BufferedWriter writer=new BufferedWriter(new OutputStreamWriter(rdt.getOutputStream()));
@@ -61,7 +42,7 @@ public class FileTrans extends Thread {
             FileInputStream fileIn=new FileInputStream(path);
             byte[] sendPacket=new byte[1024];
             int num=0;
-            int len=-1;
+            int len;
             while((len=fileIn.read(sendPacket))!=-1){
                 //DataOutputStream out=new DataOutputStream(rdt.getOutputStream());
                 rdt.write(Arrays.copyOfRange(sendPacket,0,len));
@@ -69,6 +50,7 @@ public class FileTrans extends Thread {
                 num++;
                 fileSender.progressBar1.setValue((int)((double)num/MByte*100));
             }
+            rdt.close();
         }catch (IOException e){
             e.printStackTrace();
             return false;
@@ -76,20 +58,23 @@ public class FileTrans extends Thread {
         return true;
     }
 
-    private void receive(int port, String path){
+    public void receive(){
+        int port=recvPort;
+        String path=recvPath;
         try{
             ServerRDT serverRdt=new ServerRDT(port);
-            RDT rdt=serverRdt.accept();
+            recvRDT=serverRdt.accept();
+            System.out.println("connect");
             long MByte;
             //BufferedReader reader=new BufferedReader(new InputStreamReader(rdt.getInputStream()));
-            String tmp=rdt.readLine();
+            String tmp=recvRDT.readLine();
             MByte=Long.parseLong(tmp);
             int num=0;
             byte[] recvPacket=new byte[1024];
             //DataInputStream in=new DataInputStream(rdt.getInputStream());
             FileOutputStream out=new FileOutputStream(path);
-            int len=-1;
-            while((len=rdt.read(recvPacket))!=-1){
+            int len;
+            while((len=recvRDT.read(recvPacket))!=-1){
                 num++;
                 out.write(Arrays.copyOfRange(recvPacket,0,len));
                 fileReceiver.progressBar1.setValue((int)((double)num/MByte*100));
@@ -99,4 +84,5 @@ public class FileTrans extends Thread {
             e.printStackTrace();
         }
     }
+
 }

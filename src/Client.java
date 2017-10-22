@@ -12,7 +12,7 @@ public class Client extends Thread {
 
     private String serverIp="localhost";
     private int serverPort=9000;
-    public int listenPort=8889;
+    public int listenPort;
     public String localUserName;
 
 
@@ -20,13 +20,14 @@ public class Client extends Thread {
         try {
             //login
             serverSoc=new Socket(serverIp, serverPort);
+            listenSoc = new ServerSocket(0);
+            listenPort=listenSoc.getLocalPort();
             serverSocWriter = new PrintWriter(serverSoc.getOutputStream());
             serverSocReader = new BufferedReader(new InputStreamReader(serverSoc.getInputStream()));
             uiLogin = new Login(this);
             receiveFromServer();
             uiLogin.close();
             //start
-            listenSoc = new ServerSocket(listenPort);
             uiIm = new IM(this);
             uiIm.showText("Welcome, "+ localUserName +"!\n");
             receiveOfflineText();

@@ -3,9 +3,10 @@ import java.util.Arrays;
 public class Packet {
     /*
     第1字节第一位标志握手，第1～7位表示序号，
-    第2字节第一位表示握手ack，第1～7位表示ack号，
+    第2字节第一位表示ack，第1～7位表示ack号，
     第三、四字节表示检验和，
     第五、六字节表示数据长度
+    第5字节第一位表示结束连接fin
      */
     private byte[] packet;
     public Packet(){
@@ -31,7 +32,7 @@ public class Packet {
 
 
     public void setACK(byte index){
-        packet[1]&=0;
+        packet[1]=0;
         packet[1]|=(byte) 0x80;
         packet[1]|=(byte) (0x7f&index);
     }
@@ -67,7 +68,7 @@ public class Packet {
             data<<=8;
             sum+=data;
             while(true) {
-                int overflow = (sum & 0xffff0000) >> 16;
+                int overflow = (sum>>16) & 0x0000ffff;
                 if(overflow!=0) sum+=overflow;
                 else break;
             }
@@ -85,6 +86,15 @@ public class Packet {
         int sum=countSum();
         if((short)sum==0xffff) return true;
         else return false;
+    }
+
+    public void setFIN(){
+        packet[4]=0;
+        packet[4]|=0x80;
+    }
+
+    public boolean isFIN(){
+        return (packet[4]&0x80)==0x80;
     }
 
 

@@ -17,7 +17,10 @@ public class RDT {
     public int sendWinBegin;
     private int sendIndex;
 
-    private int timeout=1000;
+    private int timeout=10000;
+    private int closeTimeOut=30000;
+
+    public boolean isClose;
 
     public RDT(String ip, int port){
         try {
@@ -27,9 +30,11 @@ public class RDT {
             isConnected = false;
             receiveBuf=new LinkedList<>();
             sendbuf=new LinkedList<>();
+            waitBuf=new LinkedList<>();
             receiveWinBegin=0;
             sendWinBegin=0;
             sendIndex=0;
+            isClose=false;
             shake();
         }catch (SocketException e){
             e.printStackTrace();
@@ -44,9 +49,11 @@ public class RDT {
             remotePort=port;
             receiveBuf=new LinkedList<>();
             sendbuf=new LinkedList<>();
+            waitBuf=new LinkedList<>();
             receiveWinBegin=0;
             sendWinBegin=0;
             sendIndex=0;
+            isClose=false;
             shakeACK();
         }catch (SocketException e){
             e.printStackTrace();
@@ -61,14 +68,19 @@ public class RDT {
             Packet packet = new Packet();
             packet.setShake();
             packet.setCheckSum();
-            InetAddress addr = InetAddress.getByName(remoteIp);
-            DatagramPacket udpPacket = new DatagramPacket(packet.getBytes(), packet.getBytes().length, addr, remotePort);
+            remoteAddr = InetAddress.getByName(remoteIp);
+            DatagramPacket udpPacket = new DatagramPacket(packet.getBytes(), packet.getBytes().length, remoteAddr, remotePort);
             localSoc.send(udpPacket);
-            //todo timeout
             //receive shake ACK
             byte[] recvBytes=new byte[1030];
             DatagramPacket recvPacket = new DatagramPacket(recvBytes,recvBytes.length);
-            localSoc.receive(recvPacket);
+            localSoc.setSoTimeout(500);
+            try {
+                localSoc.receive(recvPacket);
+            }catch (SocketTimeoutException ste){
+                return;
+            }
+            localSoc.setSoTimeout(0);
             packet=new Packet(recvPacket.getData());
             if(packet.isACK()){
                 isConnected=true;
@@ -194,6 +206,42 @@ public class RDT {
             }
         }
     }
+
+    public void close(){
+        try {
+            //send FIN
+            Packet packet = new Packet();
+            packet.setFIN();
+            packet.setCheckSum();
+            DatagramPacket udpPacket = new DatagramPacket(packet.getBytes(), packet.getBytes().length, remoteAddr, remotePort);
+            localSoc.send(udpPacket);
+            //wait ACK
+            localSoc.receive(udpPacket);
+            packet=new Packet(udpPacket.getData());
+            if(packet.isACK()){
+                //wait FIN
+                localSoc.receive(udpPacket);
+                packet=new Packet(udpPacket.getData());
+                if(packet.isFIN()){
+                    //send ACK
+                    packet = new Packet();
+                    packet.setACK((byte)0);
+                    packet.setCheckSum();
+                    udpPacket = new DatagramPacket(packet.getBytes(), packet.getBytes().length, remoteAddr, remotePort);
+                    localSoc.send(udpPacket);
+                    //wait timeout
+                    Thread.sleep(closeTimeOut);
+                    //close
+                    localSoc.close();
+                    isClose=true;
+                }
+            }
+        }catch (IOException e){
+            e.printStackTrace();
+        }catch (InterruptedException ine){
+            ine.printStackTrace();
+        }
+    }
 }
 
 class SendPacket extends Thread{
@@ -211,6 +259,7 @@ class SendPacket extends Thread{
     }
     public void run(){
         while(true){
+            if(rdt.isClose) return;
             if(sendBuf.isEmpty()){
                 try {
                     sleep(10);
@@ -256,12 +305,35 @@ class ReceivePacket extends Thread{
 
     public void run(){
         while(true){
+            if(rdt.isClose) return;
             try {
                 byte[] recvBytes = new byte[1030];
                 DatagramPacket recvPacket = new DatagramPacket(recvBytes, recvBytes.length);
                 rdt.localSoc.receive(recvPacket);
                 Packet packet = new Packet(recvPacket.getData());
                 if(packet.checkSum()){
+                    //fin
+                    if(packet.isFIN()){
+                        //send ACK
+                        Packet finPacket=new Packet();
+                        packet.setACK((byte)0);
+                        packet.setCheckSum();
+                        DatagramPacket finUdpPacket=new DatagramPacket(packet.getBytes(),packet.getBytes().length,rdt.remoteAddr,rdt.remotePort);
+                        rdt.localSoc.send(finUdpPacket);
+                        //send FIN
+                        packet=new Packet();
+                        packet.setFIN();
+                        packet.setCheckSum();
+                        finUdpPacket=new DatagramPacket(packet.getBytes(),packet.getBytes().length,rdt.remoteAddr,rdt.remotePort);
+                        rdt.localSoc.send(finUdpPacket);
+                        //receive ack
+                        rdt.localSoc.receive(finUdpPacket);
+                        packet=new Packet(finPacket.getBytes());
+                        if(packet.isACK()){
+                            rdt.localSoc.close();
+                            rdt.isClose=true;
+                        }
+                    }
                     //ack
                     if(packet.isACK()){
                         int ackIndex=packet.getAck();
@@ -319,8 +391,10 @@ class Timer extends Thread{
     }
     public void run(){
         while(true){
+            if(sendPacket.rdt.isClose) return;
             try {
                 sleep(100);
+                if(sendPacket.waitBuf.isEmpty()) continue;
                 if((System.currentTimeMillis()-sendPacket.waitBuf.getFirst().time)>timeout)
                     resend();
             }catch (InterruptedException e){

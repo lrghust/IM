@@ -1,7 +1,4 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
 
 public class Dialog extends Thread{
@@ -71,15 +68,14 @@ public class Dialog extends Thread{
                         String []fileGroup=context.split(" ");
                         if(fileGroup[0].equals("FILENAME")){
                             uiIm.showText("接收文件"+fileGroup[1]+"\n",dialogId);
-                            send("FILE:PORT "+String.valueOf(fileRecvPort));
-                            Thread tFileTrans=new FileTrans(fileRecvPort++);
-                            tFileTrans.start();
+                            FileTrans fileTrans=new FileTrans(fileRecvPort);
+                            send("FILE:PORT "+String.valueOf(fileRecvPort++));
                         }
                         else if(fileGroup[0].equals("PORT")){
                             String ip=localSoc.getInetAddress().getHostAddress();
                             int port=Integer.parseInt(fileGroup[1]);
-                            Thread tFileTrans=new FileTrans(ip,port,sendFilePath);
-                            tFileTrans.start();
+                            FileTrans fileTrans=new FileTrans(ip,port,sendFilePath);
+                            fileTrans.send();
                         }
                         break;
                     }

@@ -8,7 +8,6 @@ public class ServerRDT {
     public ServerRDT(int port){
         try {
             serverSoc = new DatagramSocket(port);
-
         }catch (IOException e){
             e.printStackTrace();
         }
@@ -24,10 +23,6 @@ public class ServerRDT {
                     InetAddress addr = recvPacket.getAddress();
                     String remoteIp = addr.getHostAddress();
                     int remotePort = recvPacket.getPort();
-
-                    Packet sendPacket = new Packet();
-                    sendPacket.setACK((byte)0);
-                    sendPacket.setCheckSum();
 
                     RDT rdt = new RDT(remoteIp, remotePort, true);
                     return rdt;
