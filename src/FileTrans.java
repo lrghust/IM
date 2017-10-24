@@ -43,12 +43,20 @@ public class FileTrans {
             byte[] sendPacket=new byte[1024];
             int num=0;
             int len;
+            long timeBegin=System.currentTimeMillis();
+            int numBegin=0;
             while((len=fileIn.read(sendPacket))!=-1){
                 //DataOutputStream out=new DataOutputStream(rdt.getOutputStream());
                 rdt.write(Arrays.copyOfRange(sendPacket,0,len));
                 //out.flush();
                 num++;
                 fileSender.progressBar1.setValue((int)((double)num/MByte*100));
+                double sendTime=(System.currentTimeMillis()-timeBegin)/1000.;
+                if(sendTime>0.5) {
+                    fileSender.label_speed.setText(String.format("%.2f",(num-numBegin) / sendTime) + "KB/s");
+                    timeBegin=System.currentTimeMillis();
+                    numBegin=num;
+                }
             }
         }catch (IOException e){
             e.printStackTrace();
@@ -73,10 +81,18 @@ public class FileTrans {
             //DataInputStream in=new DataInputStream(rdt.getInputStream());
             FileOutputStream out=new FileOutputStream(path);
             int len;
+            long timeBegin=System.currentTimeMillis();
+            int numBegin=0;
             while((len=recvRDT.read(recvPacket))!=-1){
                 num++;
                 out.write(Arrays.copyOfRange(recvPacket,0,len));
                 fileReceiver.progressBar1.setValue((int) ((double) num / MByte * 100));
+                double recvTime=(System.currentTimeMillis()-timeBegin)/1000.;
+                if(recvTime>0.5) {
+                    fileReceiver.label_speed.setText(String.format("%.2f",(num-numBegin) / recvTime) + "KB/s");
+                    timeBegin = System.currentTimeMillis();
+                    numBegin = num;
+                }
             }
             out.close();
             recvRDT.close();

@@ -13,6 +13,7 @@ public class FileReceiver {
     private JButton button_receive;
     private JButton button_choosefile;
     private JTextField textField_filename;
+    public JLabel label_speed;
 
     private FileTrans fileTrans;
 

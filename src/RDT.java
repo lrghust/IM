@@ -1,6 +1,7 @@
 import java.io.IOException;
 import java.net.*;
 import java.util.*;
+import java.util.concurrent.LinkedBlockingDeque;
 
 public class RDT {
     private boolean isConnected;
@@ -9,10 +10,12 @@ public class RDT {
     public InetAddress remoteAddr;
     public int remotePort;
 
-    public LinkedList<Packet> receiveBuf;
-    public LinkedList<Packet> sendBuf;
-    public LinkedList<PacTime> waitBuf;
-    //public CopyOnWriteArrayList<PacTime> waitBuf;
+    //public LinkedList<Packet> receiveBuf;
+    //public LinkedList<Packet> sendBuf;
+    //public LinkedList<PacTime> waitBuf;
+    public LinkedBlockingDeque<Packet> receiveBuf;
+    public LinkedBlockingDeque<Packet> sendBuf;
+    public LinkedBlockingDeque<PacTime> waitBuf;
 
 
     public int receiveWinBegin;
@@ -30,10 +33,9 @@ public class RDT {
             remoteIp=ip;
             remotePort=port;
             isConnected = false;
-            receiveBuf=new LinkedList<>();
-            sendBuf=new LinkedList<>();
-            waitBuf=new LinkedList<>();
-            //waitBuf=new CopyOnWriteArrayList<>();
+            receiveBuf=new LinkedBlockingDeque<>();
+            sendBuf=new LinkedBlockingDeque<>();
+            waitBuf=new LinkedBlockingDeque<>();
             receiveWinBegin=0;
             sendWinBegin=0;
             sendIndex=0;
@@ -51,10 +53,9 @@ public class RDT {
             localSoc = new DatagramSocket();
             remoteIp=ip;
             remotePort=port;
-            receiveBuf=new LinkedList<>();
-            sendBuf=new LinkedList<>();
-            waitBuf=new LinkedList<>();
-            //waitBuf=new CopyOnWriteArrayList<>();
+            receiveBuf=new LinkedBlockingDeque<>();
+            sendBuf=new LinkedBlockingDeque<>();
+            waitBuf=new LinkedBlockingDeque<>();
             receiveWinBegin=0;
             sendWinBegin=0;
             sendIndex=0;
@@ -198,6 +199,7 @@ public class RDT {
             int pacLen=packet.length();
             if(curLen+pacLen>needLen){
                 receiveBuf.addFirst(packet);
+
                 if(recvIndex==0) recvIndex=127;
                 else recvIndex--;
                 return curLen;
@@ -223,8 +225,8 @@ public class RDT {
         }
     }
 
-    private synchronized Packet getPacketInOrder(int recvIndex){
-        ListIterator<Packet> iter=receiveBuf.listIterator();
+    private Packet getPacketInOrder(int recvIndex){
+        Iterator<Packet> iter=receiveBuf.iterator();
         int i=0;
         while(iter.hasNext()){
             Packet packet=iter.next();
@@ -297,7 +299,7 @@ class SendPacket extends Thread{
             if(rdt.isClose) return;
             if(rdt.sendBuf.isEmpty()){
                 try {
-                    sleep(2);
+                    sleep(1);
                 }catch (InterruptedException e){
                     e.printStackTrace();
                 }
@@ -306,7 +308,7 @@ class SendPacket extends Thread{
 
             if(checkIndex(rdt.sendBuf.getFirst().getIndex(),rdt.sendWinBegin)){
                 try {
-                    sleep(5);
+                    sleep(0,1);
                     Packet packet = rdt.sendBuf.poll();
                     DatagramPacket udpPacket = new DatagramPacket(packet.getBytes(), packet.getBytes().length,
                             rdt.remoteAddr, rdt.remotePort);
@@ -349,12 +351,12 @@ class ReceivePacket extends Thread{
     }
 
     private boolean removeResendPacket(int index){
-        ListIterator<PacTime> iter=rdt.waitBuf.listIterator();
+        Iterator<PacTime> iter=rdt.waitBuf.iterator();
         int i=0;
         while(iter.hasNext()){
             PacTime pacTime=iter.next();
             if(pacTime.packet.getIndex()==index) {
-                rdt.waitBuf.remove(pacTime);
+                iter.remove();
                 System.out.printf("removefromwaitlist:%d\n",index);
                 return true;
             }

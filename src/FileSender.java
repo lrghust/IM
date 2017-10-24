@@ -9,6 +9,7 @@ public class FileSender {
     private JFrame frame;
     public JProgressBar progressBar1;
     private JPanel panel1;
+    public JLabel label_speed;
 
     private FileTrans fileTrans;
 
