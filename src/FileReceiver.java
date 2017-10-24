@@ -44,7 +44,13 @@ public class FileReceiver {
                     return;
                 }
                 fileTrans.recvPath=textField_filepath.getText()+"/"+textField_filename.getText();
-                fileTrans.receive();
+                Thread tReceive=new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        fileTrans.receive();
+                    }
+                });
+                tReceive.start();
             }
         });
         progressBar1.addChangeListener(new ChangeListener() {

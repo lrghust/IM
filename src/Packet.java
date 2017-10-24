@@ -24,20 +24,19 @@ public class Packet {
     public boolean isShake(){
         return (packet[0]&0x80)==0x80;
     }
-    public void setIndex(byte index){
+    public void setIndex(int index){
         packet[0]&=0;
-        packet[0]|=(byte) (0x7f&index);
+        packet[0]|=0x7f&index;
     }
-    public byte getIndex(){ return (byte)(packet[0]&0x7f); }
+    public int getIndex(){ return packet[0]&0x7f; }
 
 
-    public void setACK(byte index){
-        packet[1]=0;
-        packet[1]|=(byte) 0x80;
-        packet[1]|=(byte) (0x7f&index);
+    public void setACK(int index){
+        packet[1]=(byte) 0x80;
+        packet[1]|=0x7f&index;
     }
     public int getAck(){
-        return (byte)(packet[1]&0x7f);
+        return packet[1]&0x7f;
     }
     public boolean isACK(){
         return (packet[1]&0x80)==0x80;
@@ -50,8 +49,7 @@ public class Packet {
         packet[5]=(byte) (data.length&0xff);
     }
     public int length(){
-        int length=0;
-        length=packet[4];
+        int length=packet[4];
         length<<=8;
         length|=packet[5];
         return length;
@@ -69,7 +67,10 @@ public class Packet {
             sum+=data;
             while(true) {
                 int overflow = (sum>>16) & 0x0000ffff;
-                if(overflow!=0) sum+=overflow;
+                if(overflow!=0) {
+                    sum+=overflow;
+                    sum&=0xffff;
+                }
                 else break;
             }
         }
@@ -84,7 +85,7 @@ public class Packet {
 
     public boolean checkSum(){
         int sum=countSum();
-        if((short)sum==0xffff) return true;
+        if(sum==0xffff) return true;
         else return false;
     }
 

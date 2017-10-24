@@ -1,16 +1,29 @@
+import java.io.FileInputStream;
+import java.util.LinkedList;
+import java.util.ListIterator;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class test {
     public static void main(String []args) throws Exception{
-        byte[] tmp=new byte[1024];
-        receive(tmp);
-        System.out.println(tmp[100]);
+        LinkedList<Integer> list=new LinkedList<>();
+        list.offer(1);
+        list.offer(2);
+        list.offer(3);
+        ListIterator<Integer> iter=list.listIterator();
+        iter.next();
+        iter.remove();
+        System.out.println(list.get(0));
+
     }
 
-    private static void receive(byte[] arr){
-        byte[] tmp=new byte[3];
-        tmp[0]=(byte)0;
-        tmp[1]=(byte)0;
-        tmp[2]=(byte)0;
-        System.arraycopy(tmp,0,arr,0,3);
+    public static void tmpfunc(Tmp tmp){
+        tmp.a=2;
+    }
+}
+
+class Tmp{
+    public int a;
+    Tmp(int i){
+        a=i;
     }
 }

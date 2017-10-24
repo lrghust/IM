@@ -50,7 +50,6 @@ public class FileTrans {
                 num++;
                 fileSender.progressBar1.setValue((int)((double)num/MByte*100));
             }
-            rdt.close();
         }catch (IOException e){
             e.printStackTrace();
             return false;
@@ -64,11 +63,11 @@ public class FileTrans {
         try{
             ServerRDT serverRdt=new ServerRDT(port);
             recvRDT=serverRdt.accept();
-            System.out.println("connect");
             long MByte;
             //BufferedReader reader=new BufferedReader(new InputStreamReader(rdt.getInputStream()));
             String tmp=recvRDT.readLine();
-            MByte=Long.parseLong(tmp);
+            MByte=Long.parseLong(tmp.split("\n")[0]);
+            //MByte=200000;
             int num=0;
             byte[] recvPacket=new byte[1024];
             //DataInputStream in=new DataInputStream(rdt.getInputStream());
@@ -77,12 +76,12 @@ public class FileTrans {
             while((len=recvRDT.read(recvPacket))!=-1){
                 num++;
                 out.write(Arrays.copyOfRange(recvPacket,0,len));
-                fileReceiver.progressBar1.setValue((int)((double)num/MByte*100));
+                fileReceiver.progressBar1.setValue((int) ((double) num / MByte * 100));
             }
             out.close();
+            recvRDT.close();
         }catch (IOException e){
             e.printStackTrace();
         }
     }
-
 }
