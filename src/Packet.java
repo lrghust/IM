@@ -2,15 +2,15 @@ import java.util.Arrays;
 
 public class Packet {
     /*
-    第1字节第一位标志握手，第1～7位表示序号，
-    第2字节第一位表示ack，第1～7位表示ack号，
-    第三、四字节表示检验和，
-    第五、六字节表示数据长度
-    第5字节第一位表示结束连接fin
+    第0字节第0位标志握手，第1位标志ack，第2位fin
+    第0字节第4～7位和第1字节共12位表示序号
+    第2、3字节表示检验和
+    第4、5字节表示数据长度
      */
     private byte[] packet;
+    private int dataLength=4094;
     public Packet(){
-        packet=new byte[1030];
+        packet=new byte[6+dataLength];
         Arrays.fill(packet,(byte) 0);
     }
     public Packet(byte[] pack){
@@ -19,27 +19,29 @@ public class Packet {
 
 
     public void setShake(){
-        packet[0]|=(byte) 0x80;
+        packet[0]|= 0x80;
     }
     public boolean isShake(){
         return (packet[0]&0x80)==0x80;
     }
     public void setIndex(int index){
-        packet[0]&=0;
-        packet[0]|=0x7f&index;
+        packet[0]|=(index>>8)&0xf;
+        packet[1]=(byte) (index&0xff);
     }
-    public int getIndex(){ return packet[0]&0x7f; }
+    public int getIndex(){
+        return ((packet[0]&0xf)<<8)|(packet[1]&0xff);
+    }
 
 
     public void setACK(int index){
-        packet[1]=(byte) 0x80;
-        packet[1]|=0x7f&index;
+        packet[0]|=0x40;
+        setIndex(index);
     }
     public int getAck(){
-        return packet[1]&0x7f;
+        return getIndex();
     }
     public boolean isACK(){
-        return (packet[1]&0x80)==0x80;
+        return (packet[0]&0x40)==0x40;
     }
 
 
@@ -51,7 +53,7 @@ public class Packet {
     public int length(){
         int length=packet[4];
         length<<=8;
-        length|=packet[5];
+        length|=packet[5]&0xff;
         return length;
     }
     private int countSum(){
@@ -90,12 +92,11 @@ public class Packet {
     }
 
     public void setFIN(){
-        packet[4]=0;
-        packet[4]|=0x80;
+        packet[0]|=0x20;
     }
 
     public boolean isFIN(){
-        return (packet[4]&0x80)==0x80;
+        return (packet[0]&0x20)==0x20;
     }
 
 

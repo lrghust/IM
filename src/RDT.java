@@ -1,4 +1,3 @@
-import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.net.*;
 import java.util.*;
@@ -11,14 +10,15 @@ public class RDT {
     public InetAddress remoteAddr;
     public int remotePort;
 
-    //public LinkedList<Packet> receiveBuf;
-    //public LinkedList<Packet> sendBuf;
-    //public LinkedList<PacTime> waitBuf;
     public LinkedBlockingDeque<Packet> receiveBuf;
     public LinkedBlockingDeque<Packet> sendBuf;
     public LinkedBlockingDeque<PacTime> waitBuf;
 
 
+    public int packetLength;
+    public int headerLength;
+    public int winSize;
+    public int indexSpace;
     public int receiveWinBegin;
     public int sendWinBegin;
     private int sendIndex;
@@ -30,6 +30,10 @@ public class RDT {
 
     public RDT(String ip, int port){
         try {
+            packetLength=5000;
+            headerLength=6;
+            winSize=1024;
+            indexSpace=4096;
             localSoc = new DatagramSocket();
             remoteIp=ip;
             remotePort=port;
@@ -42,7 +46,6 @@ public class RDT {
             sendIndex=0;
             recvIndex=0;
             isClose=false;
-            shake();
         }catch (SocketException e){
             e.printStackTrace();
         }
@@ -51,6 +54,10 @@ public class RDT {
     public RDT(String ip, int port, boolean connected){
         isConnected=connected;
         try {
+            packetLength=5000;
+            headerLength=6;
+            winSize=1024;
+            indexSpace=4096;
             localSoc = new DatagramSocket();
             remoteIp=ip;
             remotePort=port;
@@ -70,7 +77,7 @@ public class RDT {
 
     public boolean isConnected(){return isConnected;}
 
-    private void shake(){
+    public void shake(){
         try {
             //send shake packet
             Packet packet = new Packet();
@@ -80,12 +87,13 @@ public class RDT {
             DatagramPacket udpPacket = new DatagramPacket(packet.getBytes(), packet.getBytes().length, remoteAddr, remotePort);
             localSoc.send(udpPacket);
             //receive shake ACK
-            byte[] recvBytes=new byte[1030];
+            byte[] recvBytes=new byte[packetLength];
             DatagramPacket recvPacket = new DatagramPacket(recvBytes,recvBytes.length);
-            localSoc.setSoTimeout(500);
+            localSoc.setSoTimeout(1000);
             try {
                 localSoc.receive(recvPacket);
             }catch (SocketTimeoutException ste){
+                System.out.printf("port:%d\n",localSoc.getLocalPort());
                 return;
             }
             remoteAddr=recvPacket.getAddress();
@@ -113,6 +121,7 @@ public class RDT {
             packet.setCheckSum();
             remoteAddr = InetAddress.getByName(remoteIp);
             DatagramPacket udpPacket = new DatagramPacket(packet.getBytes(), packet.getBytes().length, remoteAddr, remotePort);
+            System.out.printf("ip:%s port:%d\n",remoteIp,remotePort);
             localSoc.send(udpPacket);
             Thread rp=new ReceivePacket(this);
             rp.start();
@@ -130,22 +139,22 @@ public class RDT {
     public void write(byte[] data){
         int totalLen=data.length;
         int curLen=0;
-        while(totalLen>1024){
+        while(totalLen>packetLength-headerLength){
             Packet packet=new Packet();
             packet.setIndex(sendIndex++);
-            sendIndex%=128;
-            packet.setData(Arrays.copyOfRange(data,curLen,curLen+1024));
+            sendIndex%=indexSpace;
+            packet.setData(Arrays.copyOfRange(data,curLen,curLen+packetLength));
             packet.setCheckSum();
             sendBuf.offer(packet);
-            totalLen-=1024;
-            curLen+=1024;
+            totalLen-=packetLength;
+            curLen+=packetLength;
         }
         Packet packet=new Packet();
         packet.setIndex(sendIndex++);
-        sendIndex%=128;
+        sendIndex%=indexSpace;
         packet.setData(Arrays.copyOfRange(data,curLen,curLen+totalLen));
         packet.setCheckSum();
-        while(sendBuf.size()>128){
+        while(sendBuf.size()>(indexSpace-1)){
             try {
                 Thread.sleep(1);
             }catch (InterruptedException e){
@@ -170,7 +179,7 @@ public class RDT {
                 }
             }
             recvIndex++;
-            recvIndex%=128;
+            recvIndex%=indexSpace;
             byte[] data=packet.getData();
             line.append(new String(data));
             if(data[data.length-1]==0xa){
@@ -203,12 +212,11 @@ public class RDT {
             }
             iTimeOut=0;
             recvIndex++;
-            recvIndex%=128;
+            recvIndex%=indexSpace;
             int pacLen=packet.length();
             if(curLen+pacLen>needLen){
                 receiveBuf.addFirst(packet);
-
-                if(recvIndex==0) recvIndex=127;
+                if(recvIndex==0) recvIndex=indexSpace-1;
                 else recvIndex--;
                 return curLen;
             }
@@ -244,7 +252,7 @@ public class RDT {
                 iter.remove();
                 return packet;
             }
-            if(++i==64)
+            if(++i==winSize)
                 return null;
         }
         return null;
@@ -267,6 +275,15 @@ public class RDT {
             e.printStackTrace();
         }
     }
+
+    public boolean checkIndex(int index, int winBegin){
+        if(winBegin+winSize>indexSpace){
+            return (index<=(winBegin+winSize-1))&&(index>=winBegin);
+        }
+        else{
+            return ((index>=winBegin)&&(index<indexSpace))||((index>=0)&&(index<=((winBegin+winSize-1)%indexSpace)));
+        }
+    }
 }
 
 class SendPacket extends Thread{
@@ -275,15 +292,6 @@ class SendPacket extends Thread{
         rdt=tRdt;
         Thread timer=new Timer(rdt);
         timer.start();
-    }
-
-    private boolean checkIndex(int index, int winBegin){
-        if(winBegin<65){
-            return (index<=(winBegin+63))&&(index>=winBegin);
-        }
-        else{
-            return ((index>=winBegin)&&(index<128))||((index>=0)&&(index<=((winBegin+63)%128)));
-        }
     }
 
     public void run(){
@@ -298,9 +306,9 @@ class SendPacket extends Thread{
                 continue;
             }
 
-            if(checkIndex(rdt.sendBuf.getFirst().getIndex(),rdt.sendWinBegin)){
+            if(rdt.checkIndex(rdt.sendBuf.getFirst().getIndex(),rdt.sendWinBegin)){
                 try {
-                    sleep(1);
+                    sleep(0,1);
                     Packet packet = rdt.sendBuf.poll();
                     DatagramPacket udpPacket = new DatagramPacket(packet.getBytes(), packet.getBytes().length,
                             rdt.remoteAddr, rdt.remotePort);
@@ -310,10 +318,8 @@ class SendPacket extends Thread{
                     pacTime.time=System.currentTimeMillis();
                     rdt.waitBuf.offer(pacTime);
                     System.out.printf("sendindex:%d waitlist:%d sendwin:%d\n",packet.getIndex(),rdt.waitBuf.size(),rdt.sendWinBegin);
-                }catch (IOException e){
+                }catch (IOException | InterruptedException e){
                     e.printStackTrace();
-                }catch (InterruptedException ie){
-                    ie.printStackTrace();
                 }
             }
             else{
@@ -338,15 +344,6 @@ class ReceivePacket extends Thread{
         overAck=new TreeSet<>();
     }
 
-    private boolean checkIndex(int index, int winBegin){
-        if(winBegin<65){
-            return (index<=(winBegin+63))&&(index>=winBegin);
-        }
-        else{
-            return ((index>=winBegin)&&(index<128))||((index>=0)&&(index<=((winBegin+63)%128)));
-        }
-    }
-
     private boolean removeResendPacket(int index){
         Iterator<PacTime> iter=rdt.waitBuf.iterator();
         int i=0;
@@ -357,7 +354,7 @@ class ReceivePacket extends Thread{
                 //System.out.printf("removefromwaitlist:%d\n",index);
                 return true;
             }
-            if(++i==127)
+            if(++i==rdt.indexSpace)
                 return false;
         }
         return false;
@@ -368,7 +365,7 @@ class ReceivePacket extends Thread{
         while(true){
             if(rdt.isClose) return;
             try {
-                byte[] recvBytes = new byte[1030];
+                byte[] recvBytes = new byte[rdt.packetLength];
                 DatagramPacket recvPacket = new DatagramPacket(recvBytes, recvBytes.length);
                 rdt.localSoc.receive(recvPacket);
                 Packet packet = new Packet(recvPacket.getData());
@@ -378,7 +375,7 @@ class ReceivePacket extends Thread{
                         if(packet.isACK()){//fin sender
                             System.out.println("receive fin ack");
                             //wait FIN
-                            byte []finBytes=new byte[1030];
+                            byte []finBytes=new byte[rdt.packetLength];
                             DatagramPacket udpPacket = new DatagramPacket(finBytes, finBytes.length);
                             rdt.localSoc.receive(udpPacket);
                             packet=new Packet(udpPacket.getData());
@@ -416,7 +413,7 @@ class ReceivePacket extends Thread{
                             sleep(100);
                             rdt.localSoc.send(finUdpPacket);
                             //receive ack
-                            byte[] finAck = new byte[1030];
+                            byte[] finAck = new byte[rdt.packetLength];
                             finUdpPacket = new DatagramPacket(finAck, finAck.length);
                             rdt.localSoc.receive(finUdpPacket);
                             packet = new Packet(finUdpPacket.getData());
@@ -432,11 +429,11 @@ class ReceivePacket extends Thread{
                         int ackIndex=packet.getAck();
                         if(ackIndex==rdt.sendWinBegin){
                             rdt.sendWinBegin++;
-                            rdt.sendWinBegin%=128;
+                            rdt.sendWinBegin%=rdt.indexSpace;
                             redundantAck=0;
                         }
                         //fast resend
-                        else if(checkIndex(ackIndex,(rdt.sendWinBegin+1)%128)) {
+                        else if(rdt.checkIndex(ackIndex,(rdt.sendWinBegin+1)%rdt.indexSpace)) {
                             redundantAck++;
                             if(redundantAck==3) {
                                 rdt.resend();
@@ -449,13 +446,13 @@ class ReceivePacket extends Thread{
                     }
                     //data packet
                     else {
-                        if (checkIndex(packet.getIndex(), rdt.receiveWinBegin)) {
+                        if (rdt.checkIndex(packet.getIndex(), rdt.receiveWinBegin)) {
                             //in queue
                             rdt.receiveBuf.offer(packet);
                             if (packet.getIndex() == rdt.receiveWinBegin) {
                                 while(true) {
                                     rdt.receiveWinBegin++;
-                                    rdt.receiveWinBegin %= 128;
+                                    rdt.receiveWinBegin %= rdt.indexSpace;
                                     if(overPacket.contains(rdt.receiveWinBegin))
                                         overPacket.remove(rdt.receiveWinBegin);
                                     else break;

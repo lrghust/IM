@@ -10,7 +10,6 @@ public class Dialog extends Thread{
     private BufferedReader reader;
     private String remoteUserName;
     public boolean isOffline;
-    private static int fileRecvPort=10000;
     public String sendFilePath;
 
     public Dialog(Client tClient, IM im) throws IOException{
@@ -68,8 +67,8 @@ public class Dialog extends Thread{
                         String []fileGroup=context.split(" ");
                         if(fileGroup[0].equals("FILENAME")){
                             uiIm.showText("接收文件"+fileGroup[1]+"\n",dialogId);
-                            FileTrans fileTrans=new FileTrans(fileRecvPort);
-                            send("FILE:PORT "+String.valueOf(fileRecvPort++));
+                            FileTrans fileTrans=new FileTrans();
+                            send("FILE:PORT "+String.valueOf(fileTrans.recvPort));
                         }
                         else if(fileGroup[0].equals("PORT")){
                             String ip=localSoc.getInetAddress().getHostAddress();

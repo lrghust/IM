@@ -5,9 +5,11 @@ import java.net.InetAddress;
 
 public class ServerRDT {
     private DatagramSocket serverSoc;
-    public ServerRDT(int port){
+    public int port;
+    public ServerRDT(){
         try {
-            serverSoc = new DatagramSocket(port);
+            serverSoc = new DatagramSocket();
+            port=serverSoc.getLocalPort();
         }catch (IOException e){
             e.printStackTrace();
         }
@@ -15,7 +17,7 @@ public class ServerRDT {
     public RDT accept(){
         while(true) {
             try {
-                byte[] recvBytes = new byte[1030];
+                byte[] recvBytes = new byte[5000];
                 DatagramPacket recvPacket = new DatagramPacket(recvBytes, recvBytes.length);
                 serverSoc.receive(recvPacket);
                 Packet packet=new Packet(recvPacket.getData());
