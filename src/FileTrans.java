@@ -58,6 +58,7 @@ public class FileTrans {
                     numBegin=num;
                 }
             }
+            rdt.close();
         }catch (IOException e){
             e.printStackTrace();
             return false;
@@ -94,8 +95,8 @@ public class FileTrans {
                     numBegin = num;
                 }
             }
+            System.out.println("recvend");
             out.close();
-            recvRDT.close();
         }catch (IOException e){
             e.printStackTrace();
         }

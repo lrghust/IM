@@ -1,3 +1,4 @@
+import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.net.*;
 import java.util.*;
@@ -23,7 +24,7 @@ public class RDT {
     private int sendIndex;
     private int recvIndex;
 
-    private int closeTimeOut=30000;
+    public int closeTimeOut=30000;
 
     public boolean isClose;
 
@@ -182,18 +183,25 @@ public class RDT {
     public int read(byte[] data){
         int needLen=data.length;
         int curLen=0;
+        int iTimeOut=0;
         while(true){
             if(isClose) return -1;
             Packet packet;
             if(receiveBuf.isEmpty()||(packet=getPacketInOrder(recvIndex))==null){
                 try {
                     Thread.sleep(1);
+                    if(receiveBuf.isEmpty()){
+                        if(++iTimeOut==5000)
+                            return -1;
+                    }
+                    else iTimeOut=0;
                     continue;
                 }catch (InterruptedException e){
                     e.printStackTrace();
                     break;
                 }
             }
+            iTimeOut=0;
             recvIndex++;
             recvIndex%=128;
             int pacLen=packet.length();
@@ -214,12 +222,14 @@ public class RDT {
 
     public void resend(){
         try {
-            Packet packet = waitBuf.getFirst().packet;
+            PacTime pacTime=waitBuf.poll();
+            Packet packet = pacTime.packet;
             DatagramPacket udpPacket = new DatagramPacket(packet.getBytes(), packet.getBytes().length,
                     remoteAddr, remotePort);
             localSoc.send(udpPacket);
             System.out.printf("resend:%d waitlist:%d\n",packet.getIndex(),waitBuf.size());
-            waitBuf.getFirst().time=System.currentTimeMillis();
+            pacTime.time=System.currentTimeMillis();
+            waitBuf.offer(pacTime);
         }catch (IOException e){
             e.printStackTrace();
         }
@@ -242,37 +252,19 @@ public class RDT {
 
     public void close(){
         try {
+            while(!waitBuf.isEmpty()||!sendBuf.isEmpty()||!receiveBuf.isEmpty()){
+                Thread.sleep(1);
+            }
+            Thread.sleep(1);
+            System.out.println("begin close");
             //send FIN
             Packet packet = new Packet();
             packet.setFIN();
             packet.setCheckSum();
             DatagramPacket udpPacket = new DatagramPacket(packet.getBytes(), packet.getBytes().length, remoteAddr, remotePort);
             localSoc.send(udpPacket);
-            //wait ACK
-            localSoc.receive(udpPacket);
-            packet=new Packet(udpPacket.getData());
-            if(packet.isACK()){
-                //wait FIN
-                localSoc.receive(udpPacket);
-                packet=new Packet(udpPacket.getData());
-                if(packet.isFIN()){
-                    //send ACK
-                    packet = new Packet();
-                    packet.setACK((byte)0);
-                    packet.setCheckSum();
-                    udpPacket = new DatagramPacket(packet.getBytes(), packet.getBytes().length, remoteAddr, remotePort);
-                    localSoc.send(udpPacket);
-                    //wait timeout
-                    Thread.sleep(closeTimeOut);
-                    //close
-                    localSoc.close();
-                    isClose=true;
-                }
-            }
-        }catch (IOException e){
+        }catch (IOException | InterruptedException e){
             e.printStackTrace();
-        }catch (InterruptedException ine){
-            ine.printStackTrace();
         }
     }
 }
@@ -308,7 +300,7 @@ class SendPacket extends Thread{
 
             if(checkIndex(rdt.sendBuf.getFirst().getIndex(),rdt.sendWinBegin)){
                 try {
-                    sleep(0,1);
+                    sleep(1);
                     Packet packet = rdt.sendBuf.poll();
                     DatagramPacket udpPacket = new DatagramPacket(packet.getBytes(), packet.getBytes().length,
                             rdt.remoteAddr, rdt.remotePort);
@@ -317,7 +309,7 @@ class SendPacket extends Thread{
                     PacTime pacTime=new PacTime(packet);
                     pacTime.time=System.currentTimeMillis();
                     rdt.waitBuf.offer(pacTime);
-                    System.out.printf("sendindex:%d waitlist:%d\n",packet.getIndex(),rdt.waitBuf.size());
+                    System.out.printf("sendindex:%d waitlist:%d sendwin:%d\n",packet.getIndex(),rdt.waitBuf.size(),rdt.sendWinBegin);
                 }catch (IOException e){
                     e.printStackTrace();
                 }catch (InterruptedException ie){
@@ -337,8 +329,13 @@ class SendPacket extends Thread{
 
 class ReceivePacket extends Thread{
     private RDT rdt;
+    TreeSet<Integer> overPacket;
+    TreeSet<Integer> overAck;
+
     ReceivePacket(RDT tRdt){
         rdt=tRdt;
+        overPacket=new TreeSet<>();
+        overAck=new TreeSet<>();
     }
 
     private boolean checkIndex(int index, int winBegin){
@@ -357,16 +354,17 @@ class ReceivePacket extends Thread{
             PacTime pacTime=iter.next();
             if(pacTime.packet.getIndex()==index) {
                 iter.remove();
-                System.out.printf("removefromwaitlist:%d\n",index);
+                //System.out.printf("removefromwaitlist:%d\n",index);
                 return true;
             }
-            if(++i==64)
+            if(++i==127)
                 return false;
         }
         return false;
     }
 
     public void run(){
+        int redundantAck=0;
         while(true){
             if(rdt.isClose) return;
             try {
@@ -377,24 +375,56 @@ class ReceivePacket extends Thread{
                 if(packet.checkSum()){
                     //fin
                     if(packet.isFIN()){
-                        //send ACK
-                        Packet finPacket=new Packet();
-                        packet.setACK(0);
-                        packet.setCheckSum();
-                        DatagramPacket finUdpPacket=new DatagramPacket(packet.getBytes(),packet.getBytes().length,rdt.remoteAddr,rdt.remotePort);
-                        rdt.localSoc.send(finUdpPacket);
-                        //send FIN
-                        packet=new Packet();
-                        packet.setFIN();
-                        packet.setCheckSum();
-                        finUdpPacket=new DatagramPacket(packet.getBytes(),packet.getBytes().length,rdt.remoteAddr,rdt.remotePort);
-                        rdt.localSoc.send(finUdpPacket);
-                        //receive ack
-                        rdt.localSoc.receive(finUdpPacket);
-                        packet=new Packet(finPacket.getBytes());
-                        if(packet.isACK()){
-                            rdt.localSoc.close();
-                            rdt.isClose=true;
+                        if(packet.isACK()){//fin sender
+                            System.out.println("receive fin ack");
+                            //wait FIN
+                            byte []finBytes=new byte[1030];
+                            DatagramPacket udpPacket = new DatagramPacket(finBytes, finBytes.length);
+                            rdt.localSoc.receive(udpPacket);
+                            packet=new Packet(udpPacket.getData());
+                            if(packet.isFIN()){
+                                System.out.println("receive fin");
+                                //send ACK
+                                packet = new Packet();
+                                packet.setACK((byte)0);
+                                packet.setCheckSum();
+                                udpPacket = new DatagramPacket(packet.getBytes(), packet.getBytes().length, rdt.remoteAddr, rdt.remotePort);
+                                Thread.sleep(100);
+                                rdt.localSoc.send(udpPacket);
+                                //wait timeout
+                                Thread.sleep(rdt.closeTimeOut);
+                                //close
+                                rdt.localSoc.close();
+                                rdt.isClose=true;
+                            }
+                        }
+                        else {//fin receiver
+                            System.out.println("receive fin");
+                            //send ACK
+                            packet = new Packet();
+                            packet.setACK(0);
+                            packet.setFIN();
+                            packet.setCheckSum();
+                            DatagramPacket finUdpPacket = new DatagramPacket(packet.getBytes(), packet.getBytes().length, rdt.remoteAddr, rdt.remotePort);
+                            sleep(100);
+                            rdt.localSoc.send(finUdpPacket);
+                            //send FIN
+                            packet = new Packet();
+                            packet.setFIN();
+                            packet.setCheckSum();
+                            finUdpPacket = new DatagramPacket(packet.getBytes(), packet.getBytes().length, rdt.remoteAddr, rdt.remotePort);
+                            sleep(100);
+                            rdt.localSoc.send(finUdpPacket);
+                            //receive ack
+                            byte[] finAck = new byte[1030];
+                            finUdpPacket = new DatagramPacket(finAck, finAck.length);
+                            rdt.localSoc.receive(finUdpPacket);
+                            packet = new Packet(finUdpPacket.getData());
+                            if (packet.isACK()) {
+                                System.out.println("receive fin ack");
+                                rdt.localSoc.close();
+                                rdt.isClose = true;
+                            }
                         }
                     }
                     //ack
@@ -403,19 +433,36 @@ class ReceivePacket extends Thread{
                         if(ackIndex==rdt.sendWinBegin){
                             rdt.sendWinBegin++;
                             rdt.sendWinBegin%=128;
-                            //todo fast resend
+                            redundantAck=0;
+                        }
+                        //fast resend
+                        else if(checkIndex(ackIndex,(rdt.sendWinBegin+1)%128)) {
+                            redundantAck++;
+                            if(redundantAck==3) {
+                                rdt.resend();
+                                redundantAck=0;
+                            }
                         }
                         removeResendPacket(ackIndex);
-                        System.out.printf("ackindex:%d sendwin:%d waitlist:%d\n",ackIndex,rdt.sendWinBegin,rdt.waitBuf.size());
+                        //System.out.printf("ackindex:%d sendwin:%d waitlist:%d\n",ackIndex,rdt.sendWinBegin,rdt.waitBuf.size());
                         //rdt.waitBuf.removeIf(p->p.packet.getIndex()==ackIndex);
                     }
-                    else {//data packet
+                    //data packet
+                    else {
                         if (checkIndex(packet.getIndex(), rdt.receiveWinBegin)) {
                             //in queue
                             rdt.receiveBuf.offer(packet);
                             if (packet.getIndex() == rdt.receiveWinBegin) {
-                                rdt.receiveWinBegin++;
-                                rdt.receiveWinBegin %= 128;
+                                while(true) {
+                                    rdt.receiveWinBegin++;
+                                    rdt.receiveWinBegin %= 128;
+                                    if(overPacket.contains(rdt.receiveWinBegin))
+                                        overPacket.remove(rdt.receiveWinBegin);
+                                    else break;
+                                }
+                            }
+                            else{
+                                overPacket.add(packet.getIndex());
                             }
                         }
                         //send ack
@@ -426,10 +473,10 @@ class ReceivePacket extends Thread{
                         DatagramPacket udpPacket = new DatagramPacket(packet.getBytes(), packet.getBytes().length,
                                 rdt.remoteAddr, rdt.remotePort);
                         rdt.localSoc.send(udpPacket);
-                        System.out.printf("index:%d receivewin:%d sendack:%d\n",packet.getIndex(),rdt.receiveWinBegin,ackIndex);
+                        System.out.printf("receivewin:%d sendack:%d\n",rdt.receiveWinBegin,ackIndex);
                     }
                 }
-            }catch (IOException e){
+            }catch (IOException | InterruptedException e){
                 e.printStackTrace();
             }
         }
@@ -452,7 +499,7 @@ class ReceivePacket extends Thread{
 
 class Timer extends Thread{
     private RDT rdt;
-    private static long timeout=1;
+    private static long timeout=10;
     Timer(RDT tRdt){
         rdt=tRdt;
     }
@@ -464,7 +511,7 @@ class Timer extends Thread{
                 if(rdt.waitBuf.isEmpty()) continue;
                 if((System.currentTimeMillis()-rdt.waitBuf.getFirst().time)>timeout)
                     rdt.resend();
-            }catch (InterruptedException e){
+            }catch (InterruptedException | NoSuchElementException e){
                 e.printStackTrace();
             }
         }
