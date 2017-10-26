@@ -439,7 +439,7 @@ class ReceivePacket extends Thread{
                             overAck.add(ackIndex);
                             redundantAck++;
                             if(redundantAck==3) {
-                                rdt.resend();
+                                //rdt.resend();
                                 redundantAck=0;
                             }
                         }
