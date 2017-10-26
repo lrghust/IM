@@ -2,27 +2,13 @@
 <project version="4">
   <component name="ArtifactsWorkspaceSettings">
     <artifacts-to-build>
-      <artifact name="Server:jar" />
+      <artifact name="Client:jar" />
     </artifacts-to-build>
   </component>
   <component name="ChangeListManager">
     <list default="true" id="00c8fcd7-446c-4979-bf40-86001d698e17" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/artifacts/Server_jar.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/Socket/Dialog.class" afterPath="$PROJECT_DIR$/out/production/Socket/Dialog.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/Socket/FileTrans.class" afterPath="$PROJECT_DIR$/out/production/Socket/FileTrans.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/Socket/PacTime.class" afterPath="$PROJECT_DIR$/out/production/Socket/PacTime.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/Socket/Packet.class" afterPath="$PROJECT_DIR$/out/production/Socket/Packet.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/Socket/RDT.class" afterPath="$PROJECT_DIR$/out/production/Socket/RDT.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/Socket/ReceivePacket.class" afterPath="$PROJECT_DIR$/out/production/Socket/ReceivePacket.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/Socket/SendPacket.class" afterPath="$PROJECT_DIR$/out/production/Socket/SendPacket.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/Socket/ServerRDT.class" afterPath="$PROJECT_DIR$/out/production/Socket/ServerRDT.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/Socket/Timer.class" afterPath="$PROJECT_DIR$/out/production/Socket/Timer.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Dialog.java" afterPath="$PROJECT_DIR$/src/Dialog.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/FileTrans.java" afterPath="$PROJECT_DIR$/src/FileTrans.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Packet.java" afterPath="$PROJECT_DIR$/src/Packet.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/RDT.java" afterPath="$PROJECT_DIR$/src/RDT.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ServerRDT.java" afterPath="$PROJECT_DIR$/src/ServerRDT.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/artifacts/Server_jar.xml" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/META-INF/MANIFEST.MF" afterPath="$PROJECT_DIR$/src/META-INF/MANIFEST.MF" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -48,8 +34,8 @@
       <file leaf-file-name="FileTrans.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/FileTrans.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-422">
-              <caret line="14" column="32" lean-forward="true" selection-start-line="14" selection-start-column="32" selection-end-line="14" selection-end-column="32" />
+            <state relative-caret-position="208">
+              <caret line="14" column="32" lean-forward="false" selection-start-line="14" selection-start-column="32" selection-end-line="14" selection-end-column="32" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -60,8 +46,8 @@
       <file leaf-file-name="RDT.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/RDT.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="217">
-              <caret line="308" column="15" lean-forward="true" selection-start-line="308" selection-start-column="15" selection-end-line="308" selection-end-column="15" />
+            <state relative-caret-position="270">
+              <caret line="308" column="15" lean-forward="false" selection-start-line="308" selection-start-column="15" selection-end-line="308" selection-end-column="15" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -72,7 +58,7 @@
       <file leaf-file-name="Dialog.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Dialog.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-677">
+            <state relative-caret-position="176">
               <caret line="12" column="0" lean-forward="false" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
               <folding />
             </state>
@@ -82,7 +68,7 @@
       <file leaf-file-name="ServerRDT.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/ServerRDT.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="286">
+            <state relative-caret-position="416">
               <caret line="29" column="0" lean-forward="false" selection-start-line="29" selection-start-column="0" selection-end-line="29" selection-end-column="0" />
               <folding />
             </state>
@@ -92,7 +78,7 @@
       <file leaf-file-name="FileReceiver.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/FileReceiver.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="507">
+            <state relative-caret-position="720">
               <caret line="50" column="0" lean-forward="false" selection-start-line="50" selection-start-column="0" selection-end-line="50" selection-end-column="0" />
               <folding>
                 <element signature="imports" expanded="true" />
@@ -207,7 +193,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="AndroidView" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -230,9 +215,10 @@
           <select />
         </subPane>
       </pane>
+      <pane id="AndroidView" />
+      <pane id="PackagesPane" />
       <pane id="Scratches" />
       <pane id="Scope" />
-      <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -460,11 +446,12 @@
       <workItem from="1508851815125" duration="9412000" />
       <workItem from="1508897638271" duration="14333000" />
       <workItem from="1508920545168" duration="11687000" />
+      <workItem from="1508995180358" duration="76000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="224523000" />
+    <option name="totallyTimeSpent" value="224599000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -477,6 +464,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1280" height="800" extended-state="0" />
+    <editor active="true" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.105815835" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" x="-1023" y="131" width="125" height="584" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32737276" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -491,7 +479,7 @@
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.1453958" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.14781906" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32960597" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -842,7 +830,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -885,7 +872,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/FileReceiver.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="507">
+        <state relative-caret-position="720">
           <caret line="50" column="0" lean-forward="false" selection-start-line="50" selection-start-column="0" selection-end-line="50" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
@@ -896,7 +883,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/ServerRDT.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="286">
+        <state relative-caret-position="416">
           <caret line="29" column="0" lean-forward="false" selection-start-line="29" selection-start-column="0" selection-end-line="29" selection-end-column="0" />
           <folding />
         </state>
@@ -904,7 +891,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/Dialog.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-677">
+        <state relative-caret-position="176">
           <caret line="12" column="0" lean-forward="false" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
           <folding />
         </state>
@@ -912,8 +899,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/FileTrans.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-422">
-          <caret line="14" column="32" lean-forward="true" selection-start-line="14" selection-start-column="32" selection-end-line="14" selection-end-column="32" />
+        <state relative-caret-position="208">
+          <caret line="14" column="32" lean-forward="false" selection-start-line="14" selection-start-column="32" selection-end-line="14" selection-end-column="32" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
@@ -922,8 +909,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/RDT.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="217">
-          <caret line="308" column="15" lean-forward="true" selection-start-line="308" selection-start-column="15" selection-end-line="308" selection-end-column="15" />
+        <state relative-caret-position="270">
+          <caret line="308" column="15" lean-forward="false" selection-start-line="308" selection-start-column="15" selection-end-line="308" selection-end-column="15" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
@@ -936,7 +923,7 @@
       <state key="ArtifactsStructureConfigurable.UI">
         <settings>
           <artifact-editor />
-          <last-edited>Server:jar</last-edited>
+          <last-edited>Client:jar</last-edited>
           <splitter-proportions>
             <option name="proportions">
               <list>
