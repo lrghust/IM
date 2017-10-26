@@ -245,15 +245,12 @@ public class RDT {
 
     private Packet getPacketInOrder(int recvIndex){
         Iterator<Packet> iter=receiveBuf.iterator();
-        int i=0;
         while(iter.hasNext()){
             Packet packet=iter.next();
             if(packet.getIndex()==recvIndex) {
                 iter.remove();
                 return packet;
             }
-            if(++i==winSize)
-                return null;
         }
         return null;
     }
@@ -306,7 +303,7 @@ class SendPacket extends Thread{
                 continue;
             }
 
-            if(rdt.checkIndex(rdt.sendBuf.getFirst().getIndex(),rdt.sendWinBegin)){
+            if(rdt.waitBuf.size()>rdt.winSize||rdt.checkIndex(rdt.sendBuf.getFirst().getIndex(),rdt.sendWinBegin)){
                 try {
                     sleep(1);
                     Packet packet = rdt.sendBuf.poll();
@@ -428,12 +425,18 @@ class ReceivePacket extends Thread{
                     else if(packet.isACK()){
                         int ackIndex=packet.getAck();
                         if(ackIndex==rdt.sendWinBegin){
-                            rdt.sendWinBegin++;
-                            rdt.sendWinBegin%=rdt.indexSpace;
+                            while(true) {
+                                rdt.sendWinBegin++;
+                                rdt.sendWinBegin %= rdt.indexSpace;
+                                if(overAck.contains(rdt.sendWinBegin))
+                                    overAck.remove(rdt.sendWinBegin);
+                                else break;
+                            }
                             redundantAck=0;
                         }
                         //fast resend
                         else if(rdt.checkIndex(ackIndex,(rdt.sendWinBegin+1)%rdt.indexSpace)) {
+                            overAck.add(ackIndex);
                             redundantAck++;
                             if(redundantAck==3) {
                                 rdt.resend();
