@@ -15,7 +15,7 @@ public class FileTrans {
     private ServerRDT serverRdt;
 
     public long curLen=0;
-    public long totalBytes=1;
+    public long totalBytes=0;
     public FileTrans(String ip, int port, String tSendPath) {
         sendIp=ip;
         sendPort=port;
@@ -41,7 +41,7 @@ public class FileTrans {
                 if (rdt.isConnected()) break;
             }
             File file=new File(path);
-            totalBytes=file.length()/1024;
+            totalBytes=file.length();
             rdt.writeLine(String.valueOf(totalBytes)+"\n");
             FileInputStream fileIn=new FileInputStream(path);
             byte[] sendPacket=new byte[dataLength];

@@ -9,6 +9,7 @@
     <list default="true" id="00c8fcd7-446c-4979-bf40-86001d698e17" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/FileReceiver.java" afterPath="$PROJECT_DIR$/src/FileReceiver.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/FileSender.java" afterPath="$PROJECT_DIR$/src/FileSender.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/FileTrans.java" afterPath="$PROJECT_DIR$/src/FileTrans.java" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -34,8 +35,8 @@
       <file leaf-file-name="FileTrans.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/FileTrans.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="608">
-              <caret line="72" column="0" lean-forward="false" selection-start-line="72" selection-start-column="0" selection-end-line="72" selection-end-column="0" />
+            <state relative-caret-position="-224">
+              <caret line="43" column="37" lean-forward="false" selection-start-line="43" selection-start-column="37" selection-end-line="43" selection-end-column="37" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -65,21 +66,21 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="FileSender.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="FileSender.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/FileSender.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="273">
-              <caret line="35" column="63" lean-forward="false" selection-start-line="35" selection-start-column="63" selection-end-line="35" selection-end-column="63" />
+            <state relative-caret-position="337">
+              <caret line="39" column="17" lean-forward="false" selection-start-line="39" selection-start-column="17" selection-end-line="39" selection-end-column="17" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="FileReceiver.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="FileReceiver.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/FileReceiver.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="242">
-              <caret line="40" column="63" lean-forward="false" selection-start-line="40" selection-start-column="63" selection-end-line="40" selection-end-column="63" />
+            <state relative-caret-position="306">
+              <caret line="44" column="17" lean-forward="false" selection-start-line="44" selection-start-column="17" selection-end-line="44" selection-end-column="17" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -135,11 +136,11 @@
         <option value="$PROJECT_DIR$/src/ServerRDT.java" />
         <option value="$PROJECT_DIR$/src/Client.java" />
         <option value="$PROJECT_DIR$/src/RDT.java" />
-        <option value="$PROJECT_DIR$/src/FileTrans.java" />
         <option value="$PROJECT_DIR$/src/FileReceiver.form" />
         <option value="$PROJECT_DIR$/src/FileSender.form" />
-        <option value="$PROJECT_DIR$/src/FileReceiver.java" />
         <option value="$PROJECT_DIR$/src/FileSender.java" />
+        <option value="$PROJECT_DIR$/src/FileReceiver.java" />
+        <option value="$PROJECT_DIR$/src/FileTrans.java" />
       </list>
     </option>
   </component>
@@ -439,12 +440,12 @@
       <workItem from="1508851815125" duration="9412000" />
       <workItem from="1508897638271" duration="14333000" />
       <workItem from="1508920545168" duration="11687000" />
-      <workItem from="1508995180358" duration="6806000" />
+      <workItem from="1508995180358" duration="7157000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="231329000" />
+    <option name="totallyTimeSpent" value="231680000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -864,24 +865,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/FileTrans.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="608">
-          <caret line="72" column="0" lean-forward="false" selection-start-line="72" selection-start-column="0" selection-end-line="72" selection-end-column="0" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/Client.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-286">
-          <caret line="12" column="42" lean-forward="false" selection-start-line="12" selection-start-column="42" selection-end-line="12" selection-end-column="42" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/FileReceiver.form">
       <provider selected="true" editor-type-id="ui-designer">
         <state />
@@ -892,10 +875,18 @@
         <state />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/FileReceiver.java">
+    <entry file="file://$PROJECT_DIR$/src/Client.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="242">
-          <caret line="40" column="63" lean-forward="false" selection-start-line="40" selection-start-column="63" selection-end-line="40" selection-end-column="63" />
+        <state relative-caret-position="-286">
+          <caret line="12" column="42" lean-forward="false" selection-start-line="12" selection-start-column="42" selection-end-line="12" selection-end-column="42" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/FileTrans.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-224">
+          <caret line="43" column="37" lean-forward="false" selection-start-line="43" selection-start-column="37" selection-end-line="43" selection-end-column="37" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
@@ -904,9 +895,19 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/FileSender.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="273">
-          <caret line="35" column="63" lean-forward="false" selection-start-line="35" selection-start-column="63" selection-end-line="35" selection-end-column="63" />
+        <state relative-caret-position="337">
+          <caret line="39" column="17" lean-forward="false" selection-start-line="39" selection-start-column="17" selection-end-line="39" selection-end-column="17" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/FileReceiver.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="306">
+          <caret line="44" column="17" lean-forward="false" selection-start-line="44" selection-start-column="17" selection-end-line="44" selection-end-column="17" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
