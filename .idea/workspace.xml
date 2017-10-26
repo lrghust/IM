@@ -7,6 +7,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="00c8fcd7-446c-4979-bf40-86001d698e17" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/RDT.java" afterPath="$PROJECT_DIR$/src/RDT.java" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
@@ -45,8 +46,8 @@
       <file leaf-file-name="RDT.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/RDT.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1019">
-              <caret line="418" column="54" lean-forward="true" selection-start-line="418" selection-start-column="54" selection-end-line="418" selection-end-column="54" />
+            <state relative-caret-position="-4602">
+              <caret line="140" column="40" lean-forward="false" selection-start-line="140" selection-start-column="40" selection-end-line="140" selection-end-column="40" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -108,6 +109,7 @@
       <find>46</find>
       <find>overAck</find>
       <find>curLen</find>
+      <find>1413</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -438,12 +440,12 @@
       <workItem from="1508851815125" duration="9412000" />
       <workItem from="1508897638271" duration="14333000" />
       <workItem from="1508920545168" duration="11687000" />
-      <workItem from="1508995180358" duration="9040000" />
+      <workItem from="1508995180358" duration="10167000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="233563000" />
+    <option name="totallyTimeSpent" value="234690000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -823,16 +825,16 @@
         <state relative-caret-position="160">
           <caret line="10" column="31" lean-forward="false" selection-start-line="10" selection-start-column="31" selection-end-line="10" selection-end-column="31" />
           <folding>
-            <element signature="e#406#407#0" expanded="true" />
-            <element signature="e#438#439#0" expanded="true" />
-            <element signature="e#657#658#0" expanded="true" />
-            <element signature="e#717#718#0" expanded="true" />
-            <element signature="e#896#897#0" expanded="true" />
-            <element signature="e#941#942#0" expanded="true" />
-            <element signature="e#2149#2150#0" expanded="true" />
-            <element signature="e#2180#2181#0" expanded="true" />
-            <element signature="e#2209#2210#0" expanded="true" />
-            <element signature="e#2254#2255#0" expanded="true" />
+            <element signature="e#406#407#0" expanded="false" />
+            <element signature="e#438#439#0" expanded="false" />
+            <element signature="e#657#658#0" expanded="false" />
+            <element signature="e#717#718#0" expanded="false" />
+            <element signature="e#896#897#0" expanded="false" />
+            <element signature="e#941#942#0" expanded="false" />
+            <element signature="e#2149#2150#0" expanded="false" />
+            <element signature="e#2180#2181#0" expanded="false" />
+            <element signature="e#2209#2210#0" expanded="false" />
+            <element signature="e#2254#2255#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -901,8 +903,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/RDT.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1019">
-          <caret line="418" column="54" lean-forward="true" selection-start-line="418" selection-start-column="54" selection-end-line="418" selection-end-column="54" />
+        <state relative-caret-position="-4602">
+          <caret line="140" column="40" lean-forward="false" selection-start-line="140" selection-start-column="40" selection-end-line="140" selection-end-column="40" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>

@@ -138,7 +138,7 @@ public class RDT {
         sendIndex%=indexSpace;
         packet.setData(Arrays.copyOfRange(data,curLen,curLen+totalLen));
         packet.setCheckSum();
-        while(sendBuf.size()>(indexSpace-1)){
+        while(sendBuf.size()>=indexSpace){
             try {
                 Thread.sleep(1);
             }catch (InterruptedException e){
@@ -287,7 +287,7 @@ class SendPacket extends Thread{
                 continue;
             }
 
-            if(rdt.waitBuf.size()>=rdt.winSize||rdt.checkIndex(rdt.sendBuf.getFirst().getIndex(),rdt.sendWinBegin)){
+            if(rdt.waitBuf.size()<=rdt.winSize||rdt.checkIndex(rdt.sendBuf.getFirst().getIndex(),rdt.sendWinBegin)){
                 try {
                     sleep(1);
                     Packet packet = rdt.sendBuf.poll();
