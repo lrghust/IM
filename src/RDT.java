@@ -449,16 +449,16 @@ class ReceivePacket extends Thread{
                                     rdt.receiveBuf.offer(packet);
                                 }
                             }
+                            //send ack
+                            int ackIndex = packet.getIndex();
+                            packet = new Packet();
+                            packet.setACK(ackIndex);
+                            packet.setCheckSum();
+                            DatagramPacket udpPacket = new DatagramPacket(packet.getBytes(), packet.getBytes().length,
+                                    rdt.remoteAddr, rdt.remotePort);
+                            rdt.localSoc.send(udpPacket);
+                            System.out.printf("receivewin:%d sendack:%d\n",rdt.receiveWinBegin,ackIndex);
                         }
-                        //send ack
-                        int ackIndex = packet.getIndex();
-                        packet = new Packet();
-                        packet.setACK(ackIndex);
-                        packet.setCheckSum();
-                        DatagramPacket udpPacket = new DatagramPacket(packet.getBytes(), packet.getBytes().length,
-                                rdt.remoteAddr, rdt.remotePort);
-                        rdt.localSoc.send(udpPacket);
-                        System.out.printf("receivewin:%d sendack:%d\n",rdt.receiveWinBegin,ackIndex);
                     }
                 }
             }catch (IOException | InterruptedException e){
