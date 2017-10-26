@@ -277,7 +277,7 @@ public class RDT {
     }
 
     public boolean checkIndex(int index, int winBegin){
-        if(winBegin+winSize>indexSpace){
+        if(winBegin+winSize<indexSpace){
             return (index<=(winBegin+winSize-1))&&(index>=winBegin);
         }
         else{
