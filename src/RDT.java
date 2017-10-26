@@ -287,7 +287,7 @@ class SendPacket extends Thread{
                 continue;
             }
 
-            if(rdt.waitBuf.size()<=rdt.winSize||rdt.checkIndex(rdt.sendBuf.getFirst().getIndex(),rdt.sendWinBegin)){
+            if(rdt.waitBuf.size()<=rdt.winSize&&rdt.checkIndex(rdt.sendBuf.getFirst().getIndex(),rdt.sendWinBegin)){
                 try {
                     sleep(1);
                     Packet packet = rdt.sendBuf.poll();
