@@ -7,8 +7,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="00c8fcd7-446c-4979-bf40-86001d698e17" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/artifacts/Server_jar.xml" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/META-INF/MANIFEST.MF" afterPath="$PROJECT_DIR$/src/META-INF/MANIFEST.MF" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Client.java" afterPath="$PROJECT_DIR$/src/Client.java" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -43,14 +42,24 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="RDT.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="RDT.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/RDT.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="270">
-              <caret line="308" column="15" lean-forward="false" selection-start-line="308" selection-start-column="15" selection-end-line="308" selection-end-column="15" />
+            <state relative-caret-position="126">
+              <caret line="299" column="38" lean-forward="true" selection-start-line="299" selection-start-column="38" selection-end-line="299" selection-end-column="38" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Client.java" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/Client.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="176">
+              <caret line="12" column="42" lean-forward="false" selection-start-line="12" selection-start-column="42" selection-end-line="12" selection-end-column="42" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -147,7 +156,6 @@
         <option value="$PROJECT_DIR$/src/IM.form" />
         <option value="$PROJECT_DIR$/src/IM.java" />
         <option value="$PROJECT_DIR$/src/Server.java" />
-        <option value="$PROJECT_DIR$/src/Client.java" />
         <option value="$PROJECT_DIR$/src/FileSender.form" />
         <option value="$PROJECT_DIR$/src/FileReceiver.form" />
         <option value="$PROJECT_DIR$/src/FileSender.java" />
@@ -159,6 +167,7 @@
         <option value="$PROJECT_DIR$/src/ServerRDT.java" />
         <option value="$PROJECT_DIR$/src/FileTrans.java" />
         <option value="$PROJECT_DIR$/src/RDT.java" />
+        <option value="$PROJECT_DIR$/src/Client.java" />
       </list>
     </option>
   </component>
@@ -446,12 +455,12 @@
       <workItem from="1508851815125" duration="9412000" />
       <workItem from="1508897638271" duration="14333000" />
       <workItem from="1508920545168" duration="11687000" />
-      <workItem from="1508995180358" duration="76000" />
+      <workItem from="1508995180358" duration="291000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="224599000" />
+    <option name="totallyTimeSpent" value="224814000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -783,14 +792,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/Client.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="130">
-          <caret line="23" column="48" lean-forward="false" selection-start-line="23" selection-start-column="48" selection-end-line="23" selection-end-column="48" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar:///Library/Java/JavaVirtualMachines/jdk-9.jdk/Contents/Home/lib/src.zip!/java.base/java/util/Collection.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="149">
@@ -830,6 +831,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -909,11 +911,19 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/RDT.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="270">
-          <caret line="308" column="15" lean-forward="false" selection-start-line="308" selection-start-column="15" selection-end-line="308" selection-end-column="15" />
+        <state relative-caret-position="126">
+          <caret line="299" column="38" lean-forward="true" selection-start-line="299" selection-start-column="38" selection-end-line="299" selection-end-column="38" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Client.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="176">
+          <caret line="12" column="42" lean-forward="false" selection-start-line="12" selection-start-column="42" selection-end-line="12" selection-end-column="42" />
+          <folding />
         </state>
       </provider>
     </entry>

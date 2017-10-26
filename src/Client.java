@@ -10,7 +10,7 @@ public class Client extends Thread {
     private IM uiIm;
     private Login uiLogin;
 
-    private String serverIp="localhost";
+    private String serverIp="192.168.1.105";
     private int serverPort=9000;
     public int listenPort;
     public String localUserName;
