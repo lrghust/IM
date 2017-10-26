@@ -258,7 +258,7 @@ public class RDT {
     }
 
     public boolean checkIndex(int index, int winBegin){
-        if(winBegin+winSize<indexSpace){
+        if(winBegin+winSize-1<indexSpace){
             return (index<=(winBegin+winSize-1))&&(index>=winBegin);
         }
         else{
@@ -287,7 +287,7 @@ class SendPacket extends Thread{
                 continue;
             }
 
-            if(rdt.waitBuf.size()>rdt.winSize||rdt.checkIndex(rdt.sendBuf.getFirst().getIndex(),rdt.sendWinBegin)){
+            if(rdt.waitBuf.size()>=rdt.winSize||rdt.checkIndex(rdt.sendBuf.getFirst().getIndex(),rdt.sendWinBegin)){
                 try {
                     sleep(1);
                     Packet packet = rdt.sendBuf.poll();
@@ -331,7 +331,6 @@ class ReceivePacket extends Thread{
             PacTime pacTime=iter.next();
             if(pacTime.packet.getIndex()==index) {
                 iter.remove();
-                //System.out.printf("removefromwaitlist:%d\n",index);
                 return true;
             }
         }
@@ -405,23 +404,24 @@ class ReceivePacket extends Thread{
                     //ack
                     else if(packet.isACK()){
                         int ackIndex=packet.getAck();
-                        if(ackIndex==rdt.sendWinBegin){
-                            while(true) {
-                                rdt.sendWinBegin++;
-                                rdt.sendWinBegin %= rdt.indexSpace;
-                                if(overAck.contains(rdt.sendWinBegin))
-                                    overAck.remove(rdt.sendWinBegin);
-                                else break;
+                        if(rdt.checkIndex(ackIndex,rdt.sendWinBegin)) {
+                            if(ackIndex==rdt.sendWinBegin){
+                                while(true) {
+                                    rdt.sendWinBegin++;
+                                    rdt.sendWinBegin %= rdt.indexSpace;
+                                    if(overAck.contains(rdt.sendWinBegin))
+                                        overAck.remove(rdt.sendWinBegin);
+                                    else break;
+                                }
+                                //redundantAck=0;
                             }
-                            redundantAck=0;
-                        }
-                        //fast resend
-                        else if(rdt.checkIndex(ackIndex,(rdt.sendWinBegin+1)%rdt.indexSpace)) {
-                            overAck.add(ackIndex);
-                            redundantAck++;
-                            if(redundantAck==3) {
-                                //rdt.resend();
-                                redundantAck=0;
+                            else {
+                                overAck.add(ackIndex);
+                                //redundantAck++;
+                                //if (redundantAck == 3) {
+                                    //rdt.resend();
+                                    //redundantAck = 0;
+                                //}
                             }
                         }
                         removeResendPacket(ackIndex);
