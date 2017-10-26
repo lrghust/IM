@@ -44,7 +44,7 @@ public class FileReceiver {
                     showMessage("请输入接收路径与文件名！");
                     return;
                 }
-                fileTrans.recvPath=textField_filepath.getText()+"/"+textField_filename.getText();
+                fileTrans.recvPath=textField_filepath.getText()+"\\"+textField_filename.getText();
                 Thread tReceive=new Thread(new Runnable() {
                     @Override
                     public void run() {
