@@ -32,7 +32,7 @@ public class RDT {
         try {
             packetLength=5000;
             headerLength=6;
-            winSize=1024;
+            winSize=512;
             indexSpace=4096;
             localSoc = new DatagramSocket();
             remoteIp=ip;
@@ -308,7 +308,7 @@ class SendPacket extends Thread{
 
             if(rdt.checkIndex(rdt.sendBuf.getFirst().getIndex(),rdt.sendWinBegin)){
                 try {
-                    sleep(0,1);
+                    sleep(1);
                     Packet packet = rdt.sendBuf.poll();
                     DatagramPacket udpPacket = new DatagramPacket(packet.getBytes(), packet.getBytes().length,
                             rdt.remoteAddr, rdt.remotePort);
@@ -496,7 +496,7 @@ class ReceivePacket extends Thread{
 
 class Timer extends Thread{
     private RDT rdt;
-    private static long timeout=10;
+    private static long timeout=500;
     Timer(RDT tRdt){
         rdt=tRdt;
     }
@@ -504,7 +504,7 @@ class Timer extends Thread{
         while(true){
             if(rdt.isClose) return;
             try {
-                sleep(1);
+                sleep(10);
                 if(rdt.waitBuf.isEmpty()) continue;
                 if((System.currentTimeMillis()-rdt.waitBuf.getFirst().time)>timeout)
                     rdt.resend();
