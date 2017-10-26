@@ -1,4 +1,5 @@
 import javax.swing.*;
+import javax.swing.Timer;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.event.ActionEvent;
@@ -10,8 +11,10 @@ public class FileSender {
     public JProgressBar progressBar1;
     private JPanel panel1;
     public JLabel label_speed;
+    private Timer timer;
 
     private FileTrans fileTrans;
+    private long prevLen=0;
 
     public FileSender(FileTrans tFileTrans) {
         frame = new JFrame("FileSender");
@@ -26,6 +29,17 @@ public class FileSender {
         progressBar1.setStringPainted(true);
 
         fileTrans=tFileTrans;
+
+        ActionListener taskPerformer = new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                long recvBytes=fileTrans.curLen-prevLen;
+                progressBar1.setValue((int)(1.*recvBytes/fileTrans.totalBytes*100));
+                label_speed.setText(String.format("%.2f",(1.*recvBytes/1024)) + "KB/s");
+                prevLen=fileTrans.curLen;
+            }
+        };
+        timer=new Timer(1000,taskPerformer);
+        timer.start();
 
         progressBar1.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent e) {

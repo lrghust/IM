@@ -1,6 +1,7 @@
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.Timer;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
@@ -15,8 +16,10 @@ public class FileReceiver {
     private JButton button_choosefile;
     private JTextField textField_filename;
     public JLabel label_speed;
+    private Timer timer;
 
     private FileTrans fileTrans;
+    private long prevLen;
 
 
     public FileReceiver(FileTrans tFileTrans) {
@@ -30,6 +33,18 @@ public class FileReceiver {
         progressBar1.setMaximum(100);
         progressBar1.setValue(0);
         progressBar1.setStringPainted(true);
+        prevLen=0;
+
+        ActionListener taskPerformer = new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                long recvBytes=fileTrans.curLen-prevLen;
+                progressBar1.setValue((int)(1.*recvBytes/fileTrans.totalBytes*100));
+                label_speed.setText(String.format("%.2f",(1.*recvBytes/1024)) + "KB/s");
+                prevLen=fileTrans.curLen;
+            }
+        };
+        timer=new Timer(1000,taskPerformer);
+        timer.start();
         button_choosefile.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 JFileChooser jfc=new JFileChooser();
