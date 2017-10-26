@@ -343,7 +343,6 @@ class ReceivePacket extends Thread{
 
     private boolean removeResendPacket(int index){
         Iterator<PacTime> iter=rdt.waitBuf.iterator();
-        int i=0;
         while(iter.hasNext()){
             PacTime pacTime=iter.next();
             if(pacTime.packet.getIndex()==index) {
@@ -351,8 +350,6 @@ class ReceivePacket extends Thread{
                 //System.out.printf("removefromwaitlist:%d\n",index);
                 return true;
             }
-            if(++i==rdt.indexSpace)
-                return false;
         }
         return false;
     }
@@ -450,9 +447,9 @@ class ReceivePacket extends Thread{
                     //data packet
                     else {
                         if (rdt.checkIndex(packet.getIndex(), rdt.receiveWinBegin)) {
-                            //in queue
-                            rdt.receiveBuf.offer(packet);
                             if (packet.getIndex() == rdt.receiveWinBegin) {
+                                //in queue
+                                rdt.receiveBuf.offer(packet);
                                 while(true) {
                                     rdt.receiveWinBegin++;
                                     rdt.receiveWinBegin %= rdt.indexSpace;
@@ -462,7 +459,11 @@ class ReceivePacket extends Thread{
                                 }
                             }
                             else{
-                                overPacket.add(packet.getIndex());
+                                if(!overPacket.contains(packet.getIndex())) {
+                                    overPacket.add(packet.getIndex());
+                                    //in queue
+                                    rdt.receiveBuf.offer(packet);
+                                }
                             }
                         }
                         //send ack
