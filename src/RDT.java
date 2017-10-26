@@ -15,14 +15,14 @@ public class RDT {
     public LinkedBlockingDeque<PacTime> waitBuf;
 
 
-    public int packetLength;
-    public int headerLength;
-    public int winSize;
-    public int indexSpace;
-    public int receiveWinBegin;
-    public int sendWinBegin;
-    private int sendIndex;
-    private int recvIndex;
+    public int packetLength=5000;
+    public int headerLength=6;
+    public int winSize=128;
+    public int indexSpace=4096;
+    public int receiveWinBegin=0;
+    public int sendWinBegin=0;
+    private int sendIndex=0;
+    private int recvIndex=0;
 
     public int closeTimeOut=30000;
 
@@ -30,10 +30,6 @@ public class RDT {
 
     public RDT(String ip, int port){
         try {
-            packetLength=5000;
-            headerLength=6;
-            winSize=512;
-            indexSpace=4096;
             localSoc = new DatagramSocket();
             remoteIp=ip;
             remotePort=port;
@@ -41,10 +37,6 @@ public class RDT {
             receiveBuf=new LinkedBlockingDeque<>();
             sendBuf=new LinkedBlockingDeque<>();
             waitBuf=new LinkedBlockingDeque<>();
-            receiveWinBegin=0;
-            sendWinBegin=0;
-            sendIndex=0;
-            recvIndex=0;
             isClose=false;
         }catch (SocketException e){
             e.printStackTrace();
@@ -54,20 +46,12 @@ public class RDT {
     public RDT(String ip, int port, boolean connected){
         isConnected=connected;
         try {
-            packetLength=5000;
-            headerLength=6;
-            winSize=1024;
-            indexSpace=4096;
             localSoc = new DatagramSocket();
             remoteIp=ip;
             remotePort=port;
             receiveBuf=new LinkedBlockingDeque<>();
             sendBuf=new LinkedBlockingDeque<>();
             waitBuf=new LinkedBlockingDeque<>();
-            receiveWinBegin=0;
-            sendWinBegin=0;
-            sendIndex=0;
-            recvIndex=0;
             isClose=false;
             shakeACK();
         }catch (SocketException e){
