@@ -6,9 +6,7 @@
     </artifacts-to-build>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="00c8fcd7-446c-4979-bf40-86001d698e17" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/RDT.java" afterPath="$PROJECT_DIR$/src/RDT.java" />
-    </list>
+    <list default="true" id="00c8fcd7-446c-4979-bf40-86001d698e17" name="Default" comment="" />
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -428,12 +426,12 @@
       <workItem from="1508897638271" duration="14333000" />
       <workItem from="1508920545168" duration="11687000" />
       <workItem from="1508995180358" duration="13972000" />
-      <workItem from="1509082983486" duration="3956000" />
+      <workItem from="1509082983486" duration="4351000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="242451000" />
+    <option name="totallyTimeSpent" value="242846000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
