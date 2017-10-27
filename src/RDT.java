@@ -222,7 +222,7 @@ public class RDT {
             DatagramPacket udpPacket = new DatagramPacket(packet.getBytes(), packet.getBytes().length,
                     remoteAddr, remotePort);
             localSoc.send(udpPacket);
-            System.out.printf("resend:%d waitlist:%d\n",packet.getIndex(),waitBuf.size());
+            System.out.printf("resend:%d waitlist:%d timeout:%d\n",packet.getIndex(),waitBuf.size(),resenTimeout);
             pacTime.time=System.currentTimeMillis();
             pacTime.isResend=true;
             waitBuf.offer(pacTime);
