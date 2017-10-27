@@ -471,7 +471,7 @@ class ReceivePacket extends Thread{
                             rdt.localSoc.send(udpPacket);
                             System.out.printf("receivewin:%d sendack:%d\n", rdt.receiveWinBegin, ackIndex);
                         }
-                        else if(rdt.checkIndex((packet.getIndex()+rdt.winSize)%rdt.winSize,rdt.receiveWinBegin)) {
+                        else if(rdt.checkIndex((packet.getIndex()+rdt.winSize)%rdt.indexSpace,rdt.receiveWinBegin)) {
                             //send ack
                             int ackIndex = packet.getIndex();
                             packet = new Packet();
@@ -514,11 +514,11 @@ class Timer extends Thread{
         while(true){
             if(rdt.isClose) return;
             try {
-                sleep(10);
+                sleep(Math.max(rdt.resenTimeout/10,1));
                 if(rdt.waitBuf.isEmpty()) continue;
                 if((System.currentTimeMillis()-rdt.waitBuf.getFirst().time)>rdt.resenTimeout) {
                     if(!rdt.waitBuf.getFirst().isResend) {
-                        rdt.resenTimeout *= 1;
+                        rdt.resenTimeout *= 2;
                     }
                     rdt.resend();
                 }
