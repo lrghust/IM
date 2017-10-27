@@ -24,6 +24,9 @@ public class RDT {
     private int sendIndex=0;
     private int recvIndex=0;
 
+    public long estimatedRTT=100;
+    public long devRTT=0;
+    public long resenTimeout=100;
     public int closeTimeOut=30000;
 
     public boolean isClose;
@@ -316,6 +319,7 @@ class SendPacket extends Thread{
 
 class ReceivePacket extends Thread{
     private RDT rdt;
+    private int sampleFlag=0;
     TreeSet<Integer> overPacket;
     TreeSet<Integer> overAck;
 
@@ -330,6 +334,12 @@ class ReceivePacket extends Thread{
         while(iter.hasNext()){
             PacTime pacTime=iter.next();
             if(pacTime.packet.getIndex()==index) {
+                if(sampleFlag%10==0) {
+                    long sampleRTT = System.currentTimeMillis() - pacTime.time;
+                    rdt.estimatedRTT = (long) (0.875 * rdt.estimatedRTT + 0.125 * sampleRTT);
+                    rdt.devRTT = (long) (0.75 * rdt.devRTT + 0.25 * Math.abs(sampleRTT - rdt.estimatedRTT));
+                    rdt.resenTimeout = rdt.estimatedRTT + 4 * rdt.devRTT;
+                }
                 iter.remove();
                 return true;
             }
@@ -406,6 +416,7 @@ class ReceivePacket extends Thread{
                         int ackIndex=packet.getAck();
                         if(rdt.checkIndex(ackIndex,rdt.sendWinBegin)) {
                             if(ackIndex==rdt.sendWinBegin){
+                                sampleFlag++;
                                 while(true) {
                                     rdt.sendWinBegin++;
                                     rdt.sendWinBegin %= rdt.indexSpace;
@@ -495,7 +506,6 @@ class ReceivePacket extends Thread{
 
 class Timer extends Thread{
     private RDT rdt;
-    private static long timeout=500;
     Timer(RDT tRdt){
         rdt=tRdt;
     }
@@ -505,8 +515,10 @@ class Timer extends Thread{
             try {
                 sleep(10);
                 if(rdt.waitBuf.isEmpty()) continue;
-                if((System.currentTimeMillis()-rdt.waitBuf.getFirst().time)>timeout)
+                if((System.currentTimeMillis()-rdt.waitBuf.getFirst().time)>rdt.resenTimeout) {
+                    rdt.resenTimeout*=2;
                     rdt.resend();
+                }
             }catch (InterruptedException | NoSuchElementException e){
                 e.printStackTrace();
             }
