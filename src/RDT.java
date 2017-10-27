@@ -518,7 +518,7 @@ class Timer extends Thread{
                 if(rdt.waitBuf.isEmpty()) continue;
                 if((System.currentTimeMillis()-rdt.waitBuf.getFirst().time)>rdt.resenTimeout) {
                     if(!rdt.waitBuf.getFirst().isResend) {
-                        rdt.resenTimeout *= 2;
+                        rdt.resenTimeout *= 1;
                     }
                     rdt.resend();
                 }
