@@ -11,6 +11,7 @@ public class Dialog extends Thread{
     private String remoteUserName;
     public boolean isOffline;
     public String sendFilePath;
+    public boolean isClosed=false;
 
     public Dialog(Client tClient, IM im) throws IOException{
         client=tClient;
@@ -78,6 +79,10 @@ public class Dialog extends Thread{
                         }
                         break;
                     }
+                    case "CLOSE":{
+                        isClosed=true;
+                        uiIm.showText(remoteUserName+"已终止对话！\n",dialogId);
+                    }
                     default:break;
                 }
             }catch(IOException e){
@@ -94,6 +99,7 @@ public class Dialog extends Thread{
 
     public void close(){
         try {
+            if(!isClosed) send("CLOSE:close");
             localSoc.close();
             if(isOffline) uiIm.showText("向"+ remoteUserName +"发送离线消息结束！\n");
             else uiIm.showText("与"+ remoteUserName +"连接结束！\n");

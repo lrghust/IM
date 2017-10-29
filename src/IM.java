@@ -48,22 +48,29 @@ public class IM extends Thread{
             public void actionPerformed(ActionEvent e) {
                 String strC2S=textField1.getText();
                 int curtab=tabbedPane1.getSelectedIndex();
-                dialogList.get(curtab).send("TEXT:"+strC2S);
-                showText("Me:"+strC2S+"\n",curtab);
+                if(!dialogList.get(curtab).isClosed) {
+                    dialogList.get(curtab).send("TEXT:" + strC2S);
+                    showText("Me:" + strC2S + "\n", curtab);
+                }
             }
         });
 
         button_close.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 int curtab=tabbedPane1.getSelectedIndex();
-                dialogList.get(curtab).close();
-                for(int i=curtab+1;i<dialogList.size();i++){
-                    dialogList.get(i).dialogId--;
+                if(curtab==-1){
+                    showMessage("无用户连接！");
                 }
-                dialogList.remove(curtab);
-                tabbedPane1.removeTabAt(curtab);
-                textAreaList.remove(curtab);
-                tabid--;
+                else {
+                    dialogList.get(curtab).close();
+                    for (int i = curtab + 1; i < dialogList.size(); i++) {
+                        dialogList.get(i).dialogId--;
+                    }
+                    dialogList.remove(curtab);
+                    tabbedPane1.removeTabAt(curtab);
+                    textAreaList.remove(curtab);
+                    tabid--;
+                }
             }
         });
 
@@ -87,19 +94,24 @@ public class IM extends Thread{
         button_sendfile.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 int curTabId=tabbedPane1.getSelectedIndex();
-                if(dialogList.get(curTabId).isOffline) {
-                    showMessage("当前对方用户不在线！");
-                    return;
+                if(curTabId==-1){
+                    showMessage("无用户连接！");
                 }
-                String filePath=textField_filepath.getText();
-                if(filePath.isEmpty()){
-                    showMessage("请选择要发送的文件！");
-                    return;
+                else {
+                    if (dialogList.get(curTabId).isOffline) {
+                        showMessage("当前对方用户不在线！");
+                        return;
+                    }
+                    String filePath = textField_filepath.getText();
+                    if (filePath.isEmpty()) {
+                        showMessage("请选择要发送的文件！");
+                        return;
+                    }
+                    dialogList.get(curTabId).sendFilePath = filePath;
+                    String[] splitPath = filePath.split("/");
+                    String sendFileName = splitPath[splitPath.length - 1];
+                    dialogList.get(curTabId).send("FILE:FILENAME " + sendFileName);
                 }
-                dialogList.get(curTabId).sendFilePath=filePath;
-                String[] splitPath=filePath.split("/");
-                String sendFileName=splitPath[splitPath.length-1];
-                dialogList.get(curTabId).send("FILE:FILENAME "+sendFileName);
             }
         });
     }
