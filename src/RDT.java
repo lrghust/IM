@@ -519,10 +519,14 @@ class Timer extends Thread{
                 sleep(Math.max(rdt.resendTimeout/10,1));
                 if(rdt.waitBuf.isEmpty()) continue;
                 if((System.currentTimeMillis()-rdt.waitBuf.getFirst().time)>rdt.resendTimeout) {
-                    if(!rdt.waitBuf.getFirst().isResend) {
-                        rdt.resendTimeout *= 1;
+                    boolean flag=false;
+                    while ((System.currentTimeMillis() - rdt.waitBuf.getFirst().time) > rdt.resendTimeout) {
+                        if(rdt.waitBuf.getFirst().isResend) flag=true;
+                        rdt.resend();
                     }
-                    rdt.resend();
+                    if (!flag) {
+                        rdt.resendTimeout *= 2;
+                    }
                 }
             }catch (InterruptedException | NoSuchElementException e){
                 e.printStackTrace();

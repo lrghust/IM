@@ -79,7 +79,7 @@ public class Server extends Thread {
                     }
                     case login: {
                         String[] pair = inStr.split(" ");
-                        ui.showText("尝试登陆："+"ID:"+pair[0]+" IP:"+pair[2]+"\n");
+                        ui.showText("尝试登陆："+"ID:"+pair[0]+" IP:"+serverSoc.getInetAddress().getHostAddress()+" Port:"+pair[2]+"\n");
                         int check = checkPair(pair[0], pair[1]);
                         if (check == 0) {
                             outStr = "LOGIN:ok";
@@ -94,7 +94,6 @@ public class Server extends Thread {
                             writer.flush();
                             if(outStr.equals("LOGIN:ok")) {
                                 sendOfflineText(userName);
-
                             }
                             state=State.wait;
                             break;
