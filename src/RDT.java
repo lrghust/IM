@@ -526,7 +526,7 @@ class Timer extends Thread{
                         sleep(Math.max(rdt.resendTimeout/20,1));
                     }
                     if (!flag) {
-                        rdt.resendTimeout *= 1.2;
+                        rdt.resendTimeout *= 1.5;
                     }
                 }
             }catch (InterruptedException | NoSuchElementException e){
