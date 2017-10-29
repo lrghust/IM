@@ -17,7 +17,7 @@ public class RDT {
 
     public int packetLength=5000;
     public int headerLength=6;
-    public int winSize=128;
+    public int winSize=1024;
     public int indexSpace=4096;
     public int receiveWinBegin=0;
     public int sendWinBegin=0;
@@ -26,7 +26,7 @@ public class RDT {
 
     public long estimatedRTT=500;
     public long devRTT=0;
-    public long resenTimeout=500;
+    public long resendTimeout=500;
     public int closeTimeOut=30000;
 
     public boolean isClose;
@@ -187,8 +187,10 @@ public class RDT {
                 try {
                     Thread.sleep(1);
                     if(receiveBuf.isEmpty()){
-                        if(++iTimeOut==5000)
-                            return -1;
+                        if(++iTimeOut==500) {
+                            if(curLen!=0) return curLen;
+                            iTimeOut=0;
+                        }
                     }
                     else iTimeOut=0;
                     continue;
@@ -222,7 +224,7 @@ public class RDT {
             DatagramPacket udpPacket = new DatagramPacket(packet.getBytes(), packet.getBytes().length,
                     remoteAddr, remotePort);
             localSoc.send(udpPacket);
-            System.out.printf("resend:%d waitlist:%d timeout:%d\n",packet.getIndex(),waitBuf.size(),resenTimeout);
+            System.out.printf("resend:%d waitlist:%d timeout:%d\n",packet.getIndex(),waitBuf.size(),resendTimeout);
             pacTime.time=System.currentTimeMillis();
             pacTime.isResend=true;
             waitBuf.offer(pacTime);
@@ -290,10 +292,13 @@ class SendPacket extends Thread{
                 }
                 continue;
             }
-
+            try {
+                sleep(rdt.resendTimeout/10-1);
+            }catch (InterruptedException e){
+                e.printStackTrace();
+            }
             if(rdt.waitBuf.size()<=rdt.winSize&&rdt.checkIndex(rdt.sendBuf.getFirst().getIndex(),rdt.sendWinBegin)){
                 try {
-                    sleep(2);
                     Packet packet = rdt.sendBuf.poll();
                     DatagramPacket udpPacket = new DatagramPacket(packet.getBytes(), packet.getBytes().length,
                             rdt.remoteAddr, rdt.remotePort);
@@ -302,15 +307,8 @@ class SendPacket extends Thread{
                     PacTime pacTime=new PacTime(packet);
                     pacTime.time=System.currentTimeMillis();
                     rdt.waitBuf.offer(pacTime);
-                    System.out.printf("sendindex:%d waitlist:%d sendwin:%d\n",packet.getIndex(),rdt.waitBuf.size(),rdt.sendWinBegin);
-                }catch (IOException | InterruptedException e){
-                    e.printStackTrace();
-                }
-            }
-            else{
-                try {
-                    sleep(1);
-                }catch (InterruptedException e){
+                    System.out.printf("sendindex:%d waitlist:%d sendwin:%d timeout:%d\n",packet.getIndex(),rdt.waitBuf.size(),rdt.sendWinBegin,rdt.resendTimeout);
+                }catch (IOException e){
                     e.printStackTrace();
                 }
             }
@@ -339,7 +337,7 @@ class ReceivePacket extends Thread{
                     long sampleRTT = System.currentTimeMillis() - pacTime.time;
                     rdt.estimatedRTT = (long) (0.875 * rdt.estimatedRTT + 0.125 * sampleRTT);
                     rdt.devRTT = (long) (0.75 * rdt.devRTT + 0.25 * Math.abs(sampleRTT - rdt.estimatedRTT));
-                    rdt.resenTimeout = rdt.estimatedRTT + 4 * rdt.devRTT;
+                    rdt.resendTimeout = Math.max(rdt.estimatedRTT + 4 * rdt.devRTT,10);
                 }
                 iter.remove();
                 return true;
@@ -385,6 +383,10 @@ class ReceivePacket extends Thread{
                         }
                         else {//fin receiver
                             System.out.println("receive fin");
+                            while (!rdt.receiveBuf.isEmpty()){
+                                sleep(500);
+                            }
+                            sleep(500);
                             //send ACK
                             packet = new Packet();
                             packet.setACK(0);
@@ -514,11 +516,11 @@ class Timer extends Thread{
         while(true){
             if(rdt.isClose) return;
             try {
-                sleep(Math.max(rdt.resenTimeout/10,1));
+                sleep(Math.max(rdt.resendTimeout/10,1));
                 if(rdt.waitBuf.isEmpty()) continue;
-                if((System.currentTimeMillis()-rdt.waitBuf.getFirst().time)>rdt.resenTimeout) {
+                if((System.currentTimeMillis()-rdt.waitBuf.getFirst().time)>rdt.resendTimeout) {
                     if(!rdt.waitBuf.getFirst().isResend) {
-                        rdt.resenTimeout *= 1;
+                        rdt.resendTimeout *= 1;
                     }
                     rdt.resend();
                 }

@@ -2,7 +2,7 @@ import java.io.*;
 import java.util.Arrays;
 
 public class FileTrans {
-    private int dataLength=4094;
+    private int dataLength=4994;
     private String sendIp;
     private int sendPort;
     private String sendPath;
@@ -48,6 +48,7 @@ public class FileTrans {
             curLen=0;
             int len;
             while((len=fileIn.read(sendPacket))!=-1){
+                System.out.printf("send:%d bytes\n",len);
                 rdt.write(Arrays.copyOfRange(sendPacket,0,len));
                 curLen+=len;
             }
@@ -71,6 +72,7 @@ public class FileTrans {
             FileOutputStream out=new FileOutputStream(path);
             int len;
             while((len=recvRDT.read(recvPacket))!=-1){
+                System.out.printf("receive:%d bytes\n",len);
                 curLen+=len;
                 out.write(Arrays.copyOfRange(recvPacket,0,len));
             }

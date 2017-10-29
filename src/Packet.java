@@ -8,7 +8,7 @@ public class Packet {
     第4、5字节表示数据长度
      */
     private byte[] packet;
-    private int dataLength=4094;
+    private int dataLength=4994;
     public Packet(){
         packet=new byte[6+dataLength];
         Arrays.fill(packet,(byte) 0);
