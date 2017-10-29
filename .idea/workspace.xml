@@ -2,16 +2,14 @@
 <project version="4">
   <component name="ArtifactsWorkspaceSettings">
     <artifacts-to-build>
-      <artifact name="Server:jar" />
+      <artifact name="Client:jar" />
     </artifacts-to-build>
   </component>
   <component name="ChangeListManager">
     <list default="true" id="00c8fcd7-446c-4979-bf40-86001d698e17" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/artifacts/Client_jar.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/artifacts/Server_jar.xml" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Client.java" afterPath="$PROJECT_DIR$/src/Client.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Dialog.java" afterPath="$PROJECT_DIR$/src/Dialog.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/IM.java" afterPath="$PROJECT_DIR$/src/IM.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/META-INF/MANIFEST.MF" afterPath="$PROJECT_DIR$/src/META-INF/MANIFEST.MF" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
@@ -35,11 +33,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="Client.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="Client.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/Client.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="176">
-              <caret line="12" column="38" lean-forward="false" selection-start-line="12" selection-start-column="38" selection-end-line="12" selection-end-column="38" />
+              <caret line="12" column="42" lean-forward="false" selection-start-line="12" selection-start-column="42" selection-end-line="12" selection-end-column="42" />
               <folding />
             </state>
           </provider>
@@ -65,10 +63,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="IM.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="IM.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/IM.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="406">
+            <state relative-caret-position="1696">
               <caret line="113" column="17" lean-forward="false" selection-start-line="113" selection-start-column="17" selection-end-line="113" selection-end-column="17" />
               <folding />
             </state>
@@ -130,8 +128,8 @@
         <option value="$PROJECT_DIR$/src/Server.java" />
         <option value="$PROJECT_DIR$/src/RDT.java" />
         <option value="$PROJECT_DIR$/src/Dialog.java" />
-        <option value="$PROJECT_DIR$/src/Client.java" />
         <option value="$PROJECT_DIR$/src/IM.java" />
+        <option value="$PROJECT_DIR$/src/Client.java" />
       </list>
     </option>
   </component>
@@ -435,12 +433,12 @@
       <workItem from="1509082983486" duration="4889000" />
       <workItem from="1509189573691" duration="12591000" />
       <workItem from="1509257923253" duration="11355000" />
-      <workItem from="1509285013421" duration="1893000" />
+      <workItem from="1509285013421" duration="3242000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="269223000" />
+    <option name="totallyTimeSpent" value="270572000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -453,6 +451,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1280" height="800" extended-state="0" />
+    <editor active="true" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.10543131" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" x="-1023" y="131" width="125" height="584" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32737276" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -462,9 +461,9 @@
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32960597" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.22833562" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.22833562" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3287483" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3287483" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.14135703" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -879,18 +878,18 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/Client.java">
+    <entry file="file://$PROJECT_DIR$/src/IM.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="176">
-          <caret line="12" column="38" lean-forward="false" selection-start-line="12" selection-start-column="38" selection-end-line="12" selection-end-column="38" />
+        <state relative-caret-position="1696">
+          <caret line="113" column="17" lean-forward="false" selection-start-line="113" selection-start-column="17" selection-end-line="113" selection-end-column="17" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/IM.java">
+    <entry file="file://$PROJECT_DIR$/src/Client.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="406">
-          <caret line="113" column="17" lean-forward="false" selection-start-line="113" selection-start-column="17" selection-end-line="113" selection-end-column="17" />
+        <state relative-caret-position="176">
+          <caret line="12" column="42" lean-forward="false" selection-start-line="12" selection-start-column="42" selection-end-line="12" selection-end-column="42" />
           <folding />
         </state>
       </provider>
@@ -901,7 +900,7 @@
       <state key="ArtifactsStructureConfigurable.UI">
         <settings>
           <artifact-editor />
-          <last-edited>Server:jar</last-edited>
+          <last-edited>Client:jar</last-edited>
           <splitter-proportions>
             <option name="proportions">
               <list>
