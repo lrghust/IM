@@ -293,11 +293,11 @@ class SendPacket extends Thread{
                 continue;
             }
             try {
-                sleep(rdt.resendTimeout/10-1);
+                sleep(rdt.resendTimeout/20);
             }catch (InterruptedException e){
                 e.printStackTrace();
             }
-            if(rdt.waitBuf.size()<=128&&rdt.checkIndex(rdt.sendBuf.getFirst().getIndex(),rdt.sendWinBegin)){
+            if(rdt.waitBuf.size()<=rdt.winSize/2&&rdt.checkIndex(rdt.sendBuf.getFirst().getIndex(),rdt.sendWinBegin)){
                 try {
                     Packet packet = rdt.sendBuf.poll();
                     DatagramPacket udpPacket = new DatagramPacket(packet.getBytes(), packet.getBytes().length,
