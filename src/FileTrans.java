@@ -1,7 +1,8 @@
 import java.io.*;
 import java.util.Arrays;
 
-public class FileTrans {
+public class FileTrans extends Thread{
+    private Dialog dialog;
     private int dataLength=4994;
     private String sendIp;
     private int sendPort;
@@ -16,20 +17,23 @@ public class FileTrans {
 
     public long curLen=0;
     public long totalBytes=0;
-    public FileTrans(String ip, int port, String tSendPath) {
+    public long totalTime=0;
+    public FileTrans(String ip, int port, Dialog tDialog) {
+        dialog=tDialog;
         sendIp=ip;
         sendPort=port;
-        sendPath=tSendPath;
+        sendPath=tDialog.sendFilePath;
         fileSender=new FileSender(this);
     }//send
 
-    public FileTrans(){
+    public FileTrans(Dialog tDialog){
+        dialog=tDialog;
         serverRdt=new ServerRDT();
         recvPort=serverRdt.port;
         fileReceiver=new FileReceiver(this);
     }//receive
 
-    public boolean send(){
+    public void run(){
         String ip=sendIp;
         int port=sendPort;
         String path=sendPath;
@@ -47,17 +51,18 @@ public class FileTrans {
             byte[] sendPacket=new byte[dataLength];
             curLen=0;
             int len;
+            long initTime=System.currentTimeMillis();
             while((len=fileIn.read(sendPacket))!=-1){
                 System.out.printf("send:%d bytes\n",len);
                 rdt.write(Arrays.copyOfRange(sendPacket,0,len));
                 curLen+=len;
             }
+            totalTime=(System.currentTimeMillis()-initTime)/1000;
+            dialog.uiIm.showText("文件发送完毕，平均速度为"+String.valueOf(totalBytes/1024/totalTime)+"KB/s\n",dialog.dialogId);
             rdt.close();
         }catch (IOException e){
             e.printStackTrace();
-            return false;
         }
-        return true;
     }
 
     public void receive(){
@@ -71,6 +76,7 @@ public class FileTrans {
             byte[] recvPacket=new byte[dataLength];
             FileOutputStream out=new FileOutputStream(path);
             int len;
+            long initTime=System.currentTimeMillis();
             while((len=recvRDT.read(recvPacket))!=-1){
                 System.out.printf("receive:%d bytes\n",len);
                 curLen+=len;
@@ -78,6 +84,8 @@ public class FileTrans {
             }
             System.out.println("recvend");
             out.close();
+            totalTime=(System.currentTimeMillis()-initTime)/1000;
+            dialog.uiIm.showText("文件接收完毕，平均速度为"+String.valueOf(totalBytes/1024/totalTime)+"KB/s\n",dialog.dialogId);
         }catch (IOException e){
             e.printStackTrace();
         }

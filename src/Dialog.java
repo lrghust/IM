@@ -4,11 +4,11 @@ import java.net.Socket;
 public class Dialog extends Thread{
     private Client client;
     private Socket localSoc;
-    private IM uiIm;
+    public IM uiIm;
     public int dialogId;
     private PrintWriter writer;
     private BufferedReader reader;
-    private String remoteUserName;
+    public String remoteUserName;
     public boolean isOffline;
     public String sendFilePath;
     public boolean isClosed=false;
@@ -68,14 +68,14 @@ public class Dialog extends Thread{
                         String []fileGroup=context.split(" ");
                         if(fileGroup[0].equals("FILENAME")){
                             uiIm.showText("接收文件"+fileGroup[1]+"\n",dialogId);
-                            FileTrans fileTrans=new FileTrans();
+                            FileTrans fileTrans=new FileTrans(this);
                             send("FILE:PORT "+String.valueOf(fileTrans.recvPort));
                         }
                         else if(fileGroup[0].equals("PORT")){
                             String ip=localSoc.getInetAddress().getHostAddress();
                             int port=Integer.parseInt(fileGroup[1]);
-                            FileTrans fileTrans=new FileTrans(ip,port,sendFilePath);
-                            fileTrans.send();
+                            Thread fileTrans=new FileTrans(ip,port,this);
+                            fileTrans.start();
                         }
                         break;
                     }

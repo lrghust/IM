@@ -170,7 +170,8 @@ public class Server extends Thread {
                     }
                     case text:{
                         String mark=inStr.split(":")[0];
-                        saveOfflineText(inStr.substring(mark.length()+1,inStr.length()));
+                        if(mark.equals("TEXT"))
+                            saveOfflineText(inStr.substring(mark.length() + 1, inStr.length()));
                         break;
                     }
                     default:
@@ -283,6 +284,7 @@ public class Server extends Thread {
         if(!file.exists()) file.createNewFile();
         FileOutputStream fout = new FileOutputStream("/Users/lrg/"+offlineto+".dat",true);
         byte[] text=encrypt(offlinefrom+":"+str);
+        fout.write((byte)(text.length));
         fout.write(text);
         ui.showText(offlinefrom+" to "+offlineto+": "+str+"\n");
         fout.close();
@@ -293,9 +295,11 @@ public class Server extends Thread {
         File file=new File(filepath);
         if(file.exists()){
             FileInputStream fin=new FileInputStream(filepath);
-            byte[] text=new byte[16];
+            byte[] len=new byte[1];
             String line;
-            while(fin.read(text)!=-1) {
+            while(fin.read(len)!=-1) {
+                byte[] text=new byte[len[0]];
+                fin.read(text);
                 line=decrypt(text);
                 writer.println("OFFLINETEXT:"+line);
                 writer.flush();

@@ -4,6 +4,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
+import java.io.File;
 
 public class IM extends Thread{
     private static JFrame frame;
@@ -23,6 +24,7 @@ public class IM extends Thread{
     private Client client;
     private ArrayList<Dialog> dialogList;
     private ArrayList<JTextArea> textAreaList;
+    private ArrayList<String> connectedNames;
 
     public IM(Client tClient) {
         frame = new JFrame("IM");
@@ -36,22 +38,36 @@ public class IM extends Thread{
         tabid=0;
         dialogList=new ArrayList<Dialog>();
         textAreaList=new ArrayList<JTextArea>();
+        connectedNames=new ArrayList<>();
 
         button_connect.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 String strId=textField_id.getText();
-                if(!client.connect(strId)) showMessage("用户不存在！");
+                textField_id.setText("");
+                if(connectedNames.contains(strId)) showMessage("已与该用户建立连接！");
+                else if(!client.connect(strId)) showMessage("用户不存在！");
+                else connectedNames.add(strId);
             }
         });
 
         button_send.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 String strC2S=textField1.getText();
+                textField1.setText("");
                 int curtab=tabbedPane1.getSelectedIndex();
-                if(!dialogList.get(curtab).isClosed) {
-                    dialogList.get(curtab).send("TEXT:" + strC2S);
-                    showText("Me:" + strC2S + "\n", curtab);
+                if(curtab==-1){
+                    showMessage("无用户连接！");
                 }
+                else if(!dialogList.get(curtab).isClosed) {
+                    if(strC2S.isEmpty()){
+                        showText("发送内容为空！\n",curtab);
+                    }
+                    else {
+                        dialogList.get(curtab).send("TEXT:" + strC2S);
+                        showText("Me:" + strC2S + "\n", curtab);
+                    }
+                }
+                else showText("对方已断开连接！\n",curtab);
             }
         });
 
@@ -62,6 +78,7 @@ public class IM extends Thread{
                     showMessage("无用户连接！");
                 }
                 else {
+                    connectedNames.remove(dialogList.get(curtab).remoteUserName);
                     dialogList.get(curtab).close();
                     for (int i = curtab + 1; i < dialogList.size(); i++) {
                         dialogList.get(i).dialogId--;
@@ -77,6 +94,8 @@ public class IM extends Thread{
         frame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
                 super.windowClosing(e);
+                for(int i=0;i<dialogList.size();i++)
+                    dialogList.get(i).close();
                 client.serverSocWriter.println("CLOSE");
                 client.serverSocWriter.flush();
             }
@@ -107,10 +126,13 @@ public class IM extends Thread{
                         showMessage("请选择要发送的文件！");
                         return;
                     }
-                    dialogList.get(curTabId).sendFilePath = filePath;
-                    String[] splitPath = filePath.split("/");
-                    String sendFileName = splitPath[splitPath.length - 1];
-                    dialogList.get(curTabId).send("FILE:FILENAME " + sendFileName);
+                    if(!new File(filePath).exists()) showMessage("文件不存在！");
+                    else {
+                        dialogList.get(curTabId).sendFilePath = filePath;
+                        String[] splitPath = filePath.split("/");
+                        String sendFileName = splitPath[splitPath.length - 1];
+                        dialogList.get(curTabId).send("FILE:FILENAME " + sendFileName);
+                    }
                 }
             }
         });

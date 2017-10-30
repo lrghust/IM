@@ -21,6 +21,8 @@ public class FileReceiver {
     private FileTrans fileTrans;
     private long prevLen;
 
+    private boolean receiveLock=false;
+
 
     public FileReceiver(FileTrans tFileTrans) {
         frame = new JFrame("FileReceiver");
@@ -58,18 +60,22 @@ public class FileReceiver {
         });
         button_receive.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                if(receiveLock){
+                    showMessage("不能重复接收！");
+                    return;
+                }
                 if(textField_filepath.getText().isEmpty()||textField_filename.getText().isEmpty()){
                     showMessage("请输入接收路径与文件名！");
                     return;
                 }
                 fileTrans.recvPath=textField_filepath.getText()+File.separator+textField_filename.getText();
                 Thread tReceive=new Thread(new Runnable() {
-                    @Override
                     public void run() {
                         fileTrans.receive();
                     }
                 });
                 tReceive.start();
+                receiveLock=true;
             }
         });
         progressBar1.addChangeListener(new ChangeListener() {

@@ -24,9 +24,9 @@ public class RDT {
     private int sendIndex=0;
     private int recvIndex=0;
 
-    public long estimatedRTT=500;
+    public long estimatedRTT=100;
     public long devRTT=0;
-    public long resendTimeout=500;
+    public long resendTimeout=100;
     public int closeTimeOut=30000;
 
     public boolean isClose;
@@ -293,7 +293,7 @@ class SendPacket extends Thread{
                 continue;
             }
             try {
-                sleep(Math.max(rdt.resendTimeout/10,1));
+                sleep(Math.max(rdt.resendTimeout/10,0));
             }catch (InterruptedException e){
                 e.printStackTrace();
             }
@@ -337,7 +337,7 @@ class ReceivePacket extends Thread{
                     long sampleRTT = System.currentTimeMillis() - pacTime.time;
                     rdt.estimatedRTT = (long) (0.875 * rdt.estimatedRTT + 0.125 * sampleRTT);
                     rdt.devRTT = (long) (0.75 * rdt.devRTT + 0.25 * Math.abs(sampleRTT - rdt.estimatedRTT));
-                    rdt.resendTimeout = Math.max(rdt.estimatedRTT + 4 * rdt.devRTT,10);
+                    rdt.resendTimeout = Math.max(rdt.estimatedRTT + 4 * rdt.devRTT,1);
                 }
                 iter.remove();
                 return true;

@@ -10,7 +10,7 @@ public class Client extends Thread {
     private IM uiIm;
     private Login uiLogin;
 
-    private String serverIp="202.114.212.63";
+    private String serverIp="10.11.55.22";
     private int serverPort=9000;
     public int listenPort;
     public String localUserName;
@@ -19,7 +19,9 @@ public class Client extends Thread {
     public Client(){//初始
         try {
             //login
-            serverSoc=new Socket(serverIp, serverPort);
+            serverSoc=new Socket();
+            InetSocketAddress inetSocketAddress=new InetSocketAddress(serverIp,serverPort);
+            serverSoc.connect(inetSocketAddress,5000);
             listenSoc = new ServerSocket(0);
             listenPort=listenSoc.getLocalPort();
             serverSocWriter = new PrintWriter(serverSoc.getOutputStream());
@@ -36,6 +38,11 @@ public class Client extends Thread {
                 Thread tDialog = new Dialog(this, uiIm);
                 tDialog.start();
             }
+        }catch (ConnectException ce){
+            System.out.println(ce.getMessage());
+            uiLogin = new Login(this);
+            uiLogin.showMessage("连接服务器失败！");
+            uiLogin.close();
         }catch(IOException e){
             e.printStackTrace();
         }
@@ -142,7 +149,9 @@ public class Client extends Thread {
                 return true;
             }
         }catch(IOException e) {
-            e.printStackTrace();
+            if(e.getMessage().equals("Connection reset"))
+                uiIm.showText("与服务器连接中断！\n");
+            else e.printStackTrace();
             return false;
         }
     }
