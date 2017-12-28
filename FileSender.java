@@ -4,6 +4,9 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 
 public class FileSender {
@@ -14,6 +17,8 @@ public class FileSender {
     private Timer timer;
 
     private FileTrans fileTrans;
+    private FileWriter file;
+    double time=0.2;
     private long prevLen=0;
 
     public FileSender(FileTrans tFileTrans) {
@@ -29,24 +34,43 @@ public class FileSender {
         progressBar1.setStringPainted(true);
 
         fileTrans=tFileTrans;
+        try {
+            file = new FileWriter("send.txt");
+        }catch (IOException e){
+            e.printStackTrace();
+        }
 
         ActionListener taskPerformer = new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
+                if(progressBar1.getValue()==100)
+                    return;
                 if(fileTrans.totalBytes!=0) {
                     long recvBytes = fileTrans.curLen - prevLen;
                     progressBar1.setValue((int) (1. * fileTrans.curLen / fileTrans.totalBytes * 100));
-                    label_speed.setText(String.format("%.2f", (1. * recvBytes / 1024)) + "KB/s");
+                    label_speed.setText(String.format("%.2f", (5. * recvBytes / 1024)) + "KB/s");
+                    try {
+                        file.write(String.format("%.1f %.2f\n", time, (5. * recvBytes / 1024)));
+                        time+=0.2;
+                    }catch (IOException e){
+                        e.printStackTrace();
+                    }
                     prevLen = fileTrans.curLen;
                 }
             }
         };
-        timer=new Timer(1000,taskPerformer);
+        timer=new Timer(200,taskPerformer);
         timer.start();
 
         progressBar1.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent e) {
-                if(progressBar1.getValue()==100)
+                if(progressBar1.getValue()==100) {
                     frame.dispose();
+                    try{
+                        file.close();
+                    }catch (IOException io){
+                        io.printStackTrace();
+                    }
+                }
             }
         });
     }

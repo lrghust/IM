@@ -9,48 +9,48 @@ public class Packet {
      */
     private byte[] packet;
     private int dataLength=4994;
-    public Packet(){
+    public Packet(){//构造一个全零的报文
         packet=new byte[6+dataLength];
         Arrays.fill(packet,(byte) 0);
     }
     public Packet(byte[] pack){
         packet=pack;
-    }
+    }//使用字节数组构造报文
 
 
-    public void setShake(){
+    public void setShake(){//设置报文为握手报文，请求连接
         packet[0]|= 0x80;
     }
     public boolean isShake(){
         return (packet[0]&0x80)==0x80;
-    }
-    public void setIndex(int index){
+    }//判断报文是否为握手报文
+    public void setIndex(int index){//设置报文的序号
         packet[0]|=(index>>8)&0xf;
         packet[1]=(byte) (index&0xff);
     }
-    public int getIndex(){
+    public int getIndex(){//获取报文的序号
         return ((packet[0]&0xf)<<8)|(packet[1]&0xff);
     }
 
 
-    public void setACK(int index){
+    public void setACK(int index){//设置报文为具有index序号的ACK
         packet[0]|=0x40;
         setIndex(index);
     }
-    public int getAck(){
+    public int getAck(){//获取报文ACK序号，即序号
         return getIndex();
     }
     public boolean isACK(){
         return (packet[0]&0x40)==0x40;
-    }
+    }//判断报文是否为ACK
 
 
-    public void setData(byte[] data){
+    public void setData(byte[] data){//设置报文数据段
         System.arraycopy(data,0,packet,6,data.length);
         packet[4]=(byte) ((data.length>>8)&0xff);
         packet[5]=(byte) (data.length&0xff);
     }
-    public int length(){
+    public int length(){//获取报文数据段实际长度
         int length=packet[4];
         length<<=8;
         length|=packet[5]&0xff;
@@ -78,32 +78,32 @@ public class Packet {
         }
         return sum;
     }
-    public void setCheckSum(){
+    public void setCheckSum(){//计算并设置报文检验和
         int sum=countSum();
         sum=~sum;
         packet[2]=(byte)((sum&0x0000ff00)>>8);
         packet[3]=(byte)sum;
     }
 
-    public boolean checkSum(){
+    public boolean checkSum(){//判断报文检验和是否正确
         int sum=countSum();
         if(sum==0xffff) return true;
         else return false;
     }
 
-    public void setFIN(){
+    public void setFIN(){//设置报文为断开连接报文
         packet[0]|=0x20;
     }
 
-    public boolean isFIN(){
+    public boolean isFIN(){//判断报文是否为断开连接报文
         return (packet[0]&0x20)==0x20;
     }
 
 
     public byte[] getBytes() {
         return packet;
-    }
-    public byte[] getData(){
+    }//获取整个报文的二进制数据
+    public byte[] getData(){//获取报文数据段的二进制数据
         byte[] tmp=new byte[length()];
         System.arraycopy(packet,6,tmp,0,length());
         return tmp;

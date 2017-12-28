@@ -66,12 +66,12 @@ public class Dialog extends Thread{
                     }
                     case "FILE":{
                         String []fileGroup=context.split(" ");
-                        if(fileGroup[0].equals("FILENAME")){
+                        if(fileGroup[0].equals("FILENAME")){//文件接收方，接收文件名
                             uiIm.showText("接收文件"+fileGroup[1]+"\n",dialogId);
                             FileTrans fileTrans=new FileTrans(this);
-                            send("FILE:PORT "+String.valueOf(fileTrans.recvPort));
+                            send("FILE:PORT "+String.valueOf(fileTrans.recvPort));//将自己接收文件端口号告知发送方
                         }
-                        else if(fileGroup[0].equals("PORT")){
+                        else if(fileGroup[0].equals("PORT")){//文件发送方，获取接收方接收文件端口号
                             String ip=localSoc.getInetAddress().getHostAddress();
                             int port=Integer.parseInt(fileGroup[1]);
                             Thread fileTrans=new FileTrans(ip,port,this);

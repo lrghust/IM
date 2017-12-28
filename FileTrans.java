@@ -53,7 +53,7 @@ public class FileTrans extends Thread{
             int len;
             long initTime=System.currentTimeMillis();
             while((len=fileIn.read(sendPacket))!=-1){
-                System.out.printf("send:%d bytes\n",len);
+                //System.out.printf("send:%d bytes\n",len);
                 rdt.write(Arrays.copyOfRange(sendPacket,0,len));
                 curLen+=len;
             }
@@ -71,7 +71,7 @@ public class FileTrans extends Thread{
         try{
             recvRDT=serverRdt.accept();
             String tmp=recvRDT.readLine();
-            totalBytes=Long.parseLong(tmp.split("\n")[0]);
+            totalBytes=Long.parseLong(tmp.split("\n")[0]);//接收文件总长度
             curLen=0;
             byte[] recvPacket=new byte[dataLength];
             FileOutputStream out=new FileOutputStream(path);

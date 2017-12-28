@@ -3,35 +3,35 @@ import java.net.*;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingDeque;
 
-public class RDT {
+public class RDT {//可靠数据传输协议
     private boolean isConnected;
     public DatagramSocket localSoc;
     private String remoteIp;
     public InetAddress remoteAddr;
     public int remotePort;
 
-    public LinkedBlockingDeque<Packet> receiveBuf;
-    public LinkedBlockingDeque<Packet> sendBuf;
-    public LinkedBlockingDeque<PacTime> waitBuf;
+    public LinkedBlockingDeque<Packet> receiveBuf;//接收缓冲区
+    public LinkedBlockingDeque<Packet> sendBuf;//发送缓冲区
+    public LinkedBlockingDeque<PacTime> waitBuf;//重传缓冲区
 
 
-    public int packetLength=5000;
-    public int headerLength=6;
-    public int winSize=1024;
-    public int indexSpace=4096;
-    public int receiveWinBegin=0;
-    public int sendWinBegin=0;
-    private int sendIndex=0;
-    private int recvIndex=0;
+    public int packetLength=5000;//报文段长度
+    public int headerLength=6;//报文段首部长度
+    public int winSize=1024;//窗口大小
+    public int indexSpace=4096;//报文索引编号最大值
+    public int receiveWinBegin=0;//接收窗口
+    public int sendWinBegin=0;//发送窗口
+    private int sendIndex=0;//发送编号
+    private int recvIndex=0;//接收编号
 
-    public long estimatedRTT=100;
+    public long estimatedRTT=100;//估计时延
     public long devRTT=0;
-    public long resendTimeout=100;
-    public int closeTimeOut=30000;
+    public long resendTimeout=100;//重传超时
+    public int closeTimeOut=30000;//断开超时
 
-    public boolean isClose;
+    public boolean isClose;//连接是否已断开
 
-    public RDT(String ip, int port){
+    public RDT(String ip, int port){//发送方构造
         try {
             localSoc = new DatagramSocket();
             remoteIp=ip;
@@ -46,7 +46,7 @@ public class RDT {
         }
     }
 
-    public RDT(String ip, int port, boolean connected){
+    public RDT(String ip, int port, boolean connected){//接收方构造
         isConnected=connected;
         try {
             localSoc = new DatagramSocket();
@@ -64,7 +64,7 @@ public class RDT {
 
     public boolean isConnected(){return isConnected;}
 
-    public void shake(){
+    public void shake(){//三次握手
         try {
             //send shake packet
             Packet packet = new Packet();
@@ -121,9 +121,9 @@ public class RDT {
 
     public void writeLine(String data){
         write(data.getBytes());
-    }
+    }//写字符串到缓冲区
 
-    public void write(byte[] data){
+    public void write(byte[] data){//写二进制到缓冲区
         int totalLen=data.length;
         int curLen=0;
         while(totalLen>packetLength-headerLength){
@@ -151,7 +151,7 @@ public class RDT {
         sendBuf.offer(packet);
     }
 
-    public String readLine(){
+    public String readLine(){//从缓冲区读字符串
         StringBuilder line=new StringBuilder();
         while(true){
             if(isClose) return null;
@@ -176,7 +176,7 @@ public class RDT {
         return null;
     }
 
-    public int read(byte[] data){
+    public int read(byte[] data){//从缓冲区读二进制
         int needLen=data.length;
         int curLen=0;
         int iTimeOut=0;
@@ -217,7 +217,7 @@ public class RDT {
         return -1;
     }
 
-    public void resend(){
+    public void resend(){//重传队头元素
         try {
             PacTime pacTime=waitBuf.poll();
             Packet packet = pacTime.packet;
@@ -233,7 +233,7 @@ public class RDT {
         }
     }
 
-    private Packet getPacketInOrder(int recvIndex){
+    private Packet getPacketInOrder(int recvIndex){//按照接收报文编号从缓冲区中按序获取报文
         Iterator<Packet> iter=receiveBuf.iterator();
         while(iter.hasNext()){
             Packet packet=iter.next();
@@ -245,7 +245,7 @@ public class RDT {
         return null;
     }
 
-    public void close(){
+    public void close(){//断开连接
         try {
             while(!waitBuf.isEmpty()||!sendBuf.isEmpty()||!receiveBuf.isEmpty()){
                 Thread.sleep(1);
@@ -263,7 +263,7 @@ public class RDT {
         }
     }
 
-    public boolean checkIndex(int index, int winBegin){
+    public boolean checkIndex(int index, int winBegin){//检查报文编号与窗口编号是否有效
         if(winBegin+winSize-1<indexSpace){
             return (index<=(winBegin+winSize-1))&&(index>=winBegin);
         }
@@ -273,7 +273,7 @@ public class RDT {
     }
 }
 
-class SendPacket extends Thread{
+class SendPacket extends Thread{//发送线程
     public RDT rdt;
     SendPacket(RDT tRdt){
         rdt=tRdt;
@@ -281,7 +281,7 @@ class SendPacket extends Thread{
         timer.start();
     }
 
-    public void run(){
+    public void run(){//线程事件循环
         while(true){
             if(rdt.isClose) return;
             if(rdt.sendBuf.isEmpty()){
@@ -293,11 +293,11 @@ class SendPacket extends Thread{
                 continue;
             }
             try {
-                sleep(Math.max(rdt.resendTimeout/10,0));
+                sleep(Math.max(rdt.resendTimeout/10,0));//根据估计的时延等待一段时间，减轻网络拥塞
             }catch (InterruptedException e){
                 e.printStackTrace();
             }
-            if(rdt.waitBuf.size()<=128&&rdt.checkIndex(rdt.sendBuf.getFirst().getIndex(),rdt.sendWinBegin)){
+            if(rdt.waitBuf.size()<=128&&rdt.checkIndex(rdt.sendBuf.getFirst().getIndex(),rdt.sendWinBegin)){//判断当前重传队列较少且发送窗口未满
                 try {
                     Packet packet = rdt.sendBuf.poll();
                     DatagramPacket udpPacket = new DatagramPacket(packet.getBytes(), packet.getBytes().length,
@@ -307,7 +307,7 @@ class SendPacket extends Thread{
                     PacTime pacTime=new PacTime(packet);
                     pacTime.time=System.currentTimeMillis();
                     rdt.waitBuf.offer(pacTime);
-                    System.out.printf("sendindex:%d waitlist:%d sendwin:%d timeout:%d\n",packet.getIndex(),rdt.waitBuf.size(),rdt.sendWinBegin,rdt.resendTimeout);
+                    //System.out.printf("sendindex:%d waitlist:%d sendwin:%d timeout:%d\n",packet.getIndex(),rdt.waitBuf.size(),rdt.sendWinBegin,rdt.resendTimeout);
                 }catch (IOException e){
                     e.printStackTrace();
                 }
@@ -516,17 +516,17 @@ class Timer extends Thread{
         while(true){
             if(rdt.isClose) return;
             try {
-                sleep(Math.max(rdt.resendTimeout/10,1));
+                sleep(Math.max(rdt.resendTimeout/10,0));//根据估计的时延等待一段时间，减轻网络拥塞
                 if(rdt.waitBuf.isEmpty()) continue;
-                if((System.currentTimeMillis()-rdt.waitBuf.getFirst().time)>rdt.resendTimeout) {
+                if((System.currentTimeMillis()-rdt.waitBuf.getFirst().time)>rdt.resendTimeout) {//判断当前队头报文是否超时
                     boolean flag=false;
-                    while ((System.currentTimeMillis() - rdt.waitBuf.getFirst().time) > rdt.resendTimeout) {
+                    while ((System.currentTimeMillis() - rdt.waitBuf.getFirst().time) > rdt.resendTimeout) {//重传队列开头部分的所有超时报文
                         if(rdt.waitBuf.getFirst().isResend) flag=true;
                         rdt.resend();
-                        //sleep(Math.max(rdt.resendTimeout/20,1));
+                        sleep(Math.max(rdt.resendTimeout/10,0));
                     }
-                    if (!flag) {
-                        rdt.resendTimeout *= 2;
+                    if (flag) {//已重传第二次时，时延加倍
+                        rdt.resendTimeout *= 1.2;
                     }
                 }
             }catch (InterruptedException | NoSuchElementException e){

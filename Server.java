@@ -8,6 +8,7 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 
 public class Server extends Thread {
+    private String savePath="/Users/lrg/";
     private ServerSocket serverSocket;
     public Socket serverSoc;
     private BufferedReader reader;
@@ -81,11 +82,11 @@ public class Server extends Thread {
                         String[] pair = inStr.split(" ");
                         ui.showText("尝试登陆："+"ID:"+pair[0]+" IP:"+serverSoc.getInetAddress().getHostAddress()+" Port:"+pair[2]+"\n");
                         int check = checkPair(pair[0], pair[1]);
-                        if (check == 0) {
+                        if (check == 0) {//正确
                             outStr = "LOGIN:ok";
                             ui.showText(pair[0]+"密码正确！\n");
                             String ip=serverSoc.getInetAddress().getHostAddress();
-                            if(!saveLoginUser(pair[0],ip,Integer.parseInt(pair[2]))) {
+                            if(!saveLoginUser(pair[0],ip,Integer.parseInt(pair[2]))) {//用户已登陆
                                 outStr = "LOGIN:erroralready";
                                 ui.showText(pair[0]+"已登陆，不能重复登录！\n");
                             }
@@ -98,11 +99,11 @@ public class Server extends Thread {
                             state=State.wait;
                             break;
                         }
-                        else if (check == 1) {
+                        else if (check == 1) {//密码错误
                             outStr = "LOGIN:errorkey";
                             ui.showText(pair[0]+"密码错误！\n");
                         }
-                        else {
+                        else {//用户名错误
                             outStr = "LOGIN:errorid";
                             ui.showText("用户名"+pair[0]+"不存在！\n");
                         }
@@ -185,12 +186,14 @@ public class Server extends Thread {
     }
 
     private int checkPair(String id, String key) throws IOException{
-        File file=new File("/Users/lrg/users.dat");
+        File file=new File(savePath+"users.dat");
         if(!file.exists()) file.createNewFile();
-        FileInputStream fin=new FileInputStream("/Users/lrg/users.dat");
-        byte[] oneUser=new byte[16];
+        FileInputStream fin=new FileInputStream(savePath+"users.dat");
+        byte[] len=new byte[1];
         String line;
-        while(fin.read(oneUser)!=-1) {
+        while(fin.read(len)!=-1) {
+            byte[] oneUser=new byte[len[0]];
+            fin.read(oneUser);
             line=decrypt(oneUser);
             String[] pair = line.split(" ");
             if(id.equals(pair[0])) {
@@ -203,19 +206,22 @@ public class Server extends Thread {
     }
 
     private boolean savePair(String id, String key) throws IOException{
-        File file=new File("/Users/lrg/users.dat");
+        File file=new File(savePath+"users.dat");
         if(!file.exists()) file.createNewFile();
-        FileInputStream fin=new FileInputStream("/Users/lrg/users.dat");
-        byte[] oneUser=new byte[16];
+        FileInputStream fin=new FileInputStream(savePath+"users.dat");
+        byte[] len=new byte[1];
         String line;
-        while(fin.read(oneUser)!=-1) {
+        while(fin.read(len)!=-1) {
+            byte[] oneUser=new byte[len[0]];
+            fin.read(oneUser);
             line=decrypt(oneUser);
             String[] pair = line.split(" ");
             if(id.equals(pair[0])) return false;
         }
         fin.close();
-        FileOutputStream fout = new FileOutputStream("/Users/lrg/users.dat",true);
-        oneUser=encrypt(id+" "+key);
+        FileOutputStream fout = new FileOutputStream(savePath+"users.dat",true);
+        byte[] oneUser=encrypt(id+" "+key);
+        fout.write((byte)oneUser.length);
         fout.write(oneUser);
         fout.close();
         return true;
@@ -244,12 +250,14 @@ public class Server extends Thread {
     }
 
     private String getKey(String id) throws IOException{
-        File file=new File("/Users/lrg/users.dat");
+        File file=new File(savePath+"users.dat");
         if(!file.exists()) file.createNewFile();
-        FileInputStream fin=new FileInputStream("/Users/lrg/users.dat");
-        byte[] oneUser=new byte[16];
+        FileInputStream fin=new FileInputStream(savePath+"users.dat");
+        byte[] len=new byte[1];
         String line;
-        while(fin.read(oneUser)!=-1) {
+        while(fin.read(len)!=-1) {
+            byte[] oneUser=new byte[len[0]];
+            fin.read(oneUser);
             line=decrypt(oneUser);
             String[] pair = line.split(" ");
             if(id.equals(pair[0])) return pair[1];
@@ -259,12 +267,14 @@ public class Server extends Thread {
     }
 
     private String queryAddr(String id) throws IOException{
-        File file=new File("/Users/lrg/users.dat");
+        File file=new File(savePath+"users.dat");
         if(!file.exists()) file.createNewFile();
-        FileInputStream fin=new FileInputStream("/Users/lrg/users.dat");
-        byte[] oneUser=new byte[16];
+        FileInputStream fin=new FileInputStream(savePath+"users.dat");
+        byte[] len=new byte[1];
         String line;
-        while(fin.read(oneUser)!=-1) {
+        while(fin.read(len)!=-1) {
+            byte[] oneUser=new byte[len[0]];
+            fin.read(oneUser);
             line = decrypt(oneUser);
             String[] pair = line.split(" ");
             if (id.equals(pair[0])) {
@@ -280,9 +290,9 @@ public class Server extends Thread {
     }
 
     private void saveOfflineText(String str) throws IOException{
-        File file=new File("/Users/lrg/"+offlineto+".dat");
+        File file=new File(savePath+offlineto+".dat");
         if(!file.exists()) file.createNewFile();
-        FileOutputStream fout = new FileOutputStream("/Users/lrg/"+offlineto+".dat",true);
+        FileOutputStream fout = new FileOutputStream(savePath+offlineto+".dat",true);
         byte[] text=encrypt(offlinefrom+":"+str);
         fout.write((byte)(text.length));
         fout.write(text);
@@ -291,7 +301,7 @@ public class Server extends Thread {
     }
 
     private void sendOfflineText(String id) throws IOException{
-        String filepath="/Users/lrg/"+id+".dat";
+        String filepath=savePath+id+".dat";
         File file=new File(filepath);
         if(file.exists()){
             FileInputStream fin=new FileInputStream(filepath);
